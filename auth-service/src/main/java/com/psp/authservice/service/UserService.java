@@ -58,16 +58,16 @@ public class UserService implements UserDetailsService {
     }
 
 
-    public ResponseEntity<?> getAllPaymentMethodsForCompany(String userEmail){
+    public ResponseEntity<?> getAllPaymentMethodsForCompany(String userEmail) {
         RegularUser user = (RegularUser) userRepository.findByEmail(userEmail);
         List<EnabledPaymentMethodDto> userPaymentMethods = new ArrayList<>();
-        for(EnabledPaymentMethod enabledPaymentMethod: user.getEnabledPaymentMethods()){
+        for (EnabledPaymentMethod enabledPaymentMethod : user.getEnabledPaymentMethods()) {
             userPaymentMethods.add(modelMapper.map(enabledPaymentMethod, EnabledPaymentMethodDto.class));
         }
-        return new ResponseEntity<>(userPaymentMethods,HttpStatus.OK);
+        return new ResponseEntity<>(userPaymentMethods, HttpStatus.OK);
     }
 
-    public ResponseEntity<?> addPaymentMethodForCompany(String userEmail, EnabledPaymentMethodDto enabledPaymentMethodDto){
+    public ResponseEntity<?> addPaymentMethodForCompany(String userEmail, EnabledPaymentMethodDto enabledPaymentMethodDto) {
         RegularUser user = (RegularUser) userRepository.findByEmail(userEmail);
         EnabledPaymentMethod enabledPaymentMethod = modelMapper.map(enabledPaymentMethodDto, EnabledPaymentMethod.class);
         enabledPaymentMethod = enabledPaymentMethodService.save(enabledPaymentMethod);
@@ -78,9 +78,9 @@ public class UserService implements UserDetailsService {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    public ResponseEntity<?> deleteEnabledPaymentMethod(String userEmail, UUID enabledPaymentMethodId){
+    public ResponseEntity<?> deleteEnabledPaymentMethod(String userEmail, UUID enabledPaymentMethodId) {
         RegularUser user = (RegularUser) userRepository.findByEmail(userEmail);
-        if(isPaymentMethodEnabledForCompany(user, enabledPaymentMethodId)){
+        if (isPaymentMethodEnabledForCompany(user, enabledPaymentMethodId)) {
             deleteEnabledPaymentMethod(enabledPaymentMethodId, user);
             return new ResponseEntity<>(HttpStatus.OK);
         }
@@ -94,9 +94,9 @@ public class UserService implements UserDetailsService {
         enabledPaymentMethodService.delete(enabledPaymentMethod);
     }
 
-    private boolean isPaymentMethodEnabledForCompany(RegularUser user, UUID enabledPaymentMethodId){
-        for(EnabledPaymentMethod enabledPaymentMethod: user.getEnabledPaymentMethods()){
-            if(enabledPaymentMethod.getId().equals(enabledPaymentMethodId)){
+    private boolean isPaymentMethodEnabledForCompany(RegularUser user, UUID enabledPaymentMethodId) {
+        for (EnabledPaymentMethod enabledPaymentMethod : user.getEnabledPaymentMethods()) {
+            if (enabledPaymentMethod.getId().equals(enabledPaymentMethodId)) {
                 return true;
             }
         }

@@ -17,43 +17,43 @@ import java.io.IOException;
 
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
-	private TokenUtils tokenUtils;
+    private TokenUtils tokenUtils;
 
-	private UserDetailsService userDetailsService;
+    private UserDetailsService userDetailsService;
 
-	protected final Log loggerLog = LogFactory.getLog(getClass());
+    protected final Log loggerLog = LogFactory.getLog(getClass());
 
-	public TokenAuthenticationFilter(TokenUtils tokenHelper, UserDetailsService userDetailsService) {
-		this.tokenUtils = tokenHelper;
-		this.userDetailsService = userDetailsService;
-	}
+    public TokenAuthenticationFilter(TokenUtils tokenHelper, UserDetailsService userDetailsService) {
+        this.tokenUtils = tokenHelper;
+        this.userDetailsService = userDetailsService;
+    }
 
-	@Override
-	public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-			throws IOException, ServletException {
+    @Override
+    public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
 
-		String username;
-		String authToken = tokenUtils.getToken(request);
+        String username;
+        String authToken = tokenUtils.getToken(request);
 
-		try {
+        try {
 
-			if (authToken != null) {
-				username = tokenUtils.getEmailFromToken(authToken);
-				if (username != null) {
-					UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-					if (tokenUtils.validateToken(authToken, userDetails).equals(true)) {
-						TokenBasedAuthentication authentication = new TokenBasedAuthentication(userDetails);
-						authentication.setToken(authToken);
-						SecurityContextHolder.getContext().setAuthentication(authentication);
-					}
-				}
-			}
+            if (authToken != null) {
+                username = tokenUtils.getEmailFromToken(authToken);
+                if (username != null) {
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                    if (tokenUtils.validateToken(authToken, userDetails).equals(true)) {
+                        TokenBasedAuthentication authentication = new TokenBasedAuthentication(userDetails);
+                        authentication.setToken(authToken);
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
+                }
+            }
 
-		} catch (ExpiredJwtException ex) {
-			loggerLog.debug("Token expired!");
-		}
+        } catch (ExpiredJwtException ex) {
+            loggerLog.debug("Token expired!");
+        }
 
-		chain.doFilter(request, response);
-	}
+        chain.doFilter(request, response);
+    }
 
 }
