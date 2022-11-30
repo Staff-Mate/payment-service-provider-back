@@ -16,6 +16,7 @@ import static javax.persistence.InheritanceType.TABLE_PER_CLASS;
 @Entity
 @NoArgsConstructor
 @Inheritance(strategy = TABLE_PER_CLASS)
+@Table(name = "users")
 public class User implements UserDetails {
 
     @Id
