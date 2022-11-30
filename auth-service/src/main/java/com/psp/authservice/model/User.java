@@ -1,8 +1,6 @@
 package com.psp.authservice.model;
 
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,17 +9,19 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
+
+import static javax.persistence.InheritanceType.TABLE_PER_CLASS;
 
 @Entity
-@Getter
-@Setter
 @NoArgsConstructor
-@Table(name="users")
+@Inheritance(strategy = TABLE_PER_CLASS)
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @SequenceGenerator(name = "mySeqGenV1", sequenceName = "mySeqV1", initialValue = 1, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "mySeqGenV1")
+    private UUID id;
 
     @Column(name = "email", nullable = false)
     private String email;
@@ -65,4 +65,36 @@ public class User implements UserDetails {
         return true;
     }
 
+    public UUID getId() {
+        return id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
 }

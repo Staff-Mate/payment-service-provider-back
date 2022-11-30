@@ -6,6 +6,7 @@ import com.psp.authservice.security.exception.ResourceConflictException;
 import com.psp.authservice.security.util.JwtAuthenticationRequest;
 import com.psp.authservice.security.util.TokenUtils;
 import com.psp.authservice.security.util.UserTokenState;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,6 +38,9 @@ public class AuthenticationService {
     @Autowired
     private RoleService roleService;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     public UserTokenState login(JwtAuthenticationRequest authenticationRequest) throws AuthenticationException {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 authenticationRequest.getEmail(), authenticationRequest.getPassword()));
@@ -56,8 +60,8 @@ public class AuthenticationService {
     }
 
     public void signUp(UserDto userDto) throws ResourceConflictException {
-        User user = new User();
-        user.setEmail(userDto.getEmail());
+        User user = modelMapper.map(userDto, User.class);
+
         user.setRole(roleService.getById(1));
         if (userService.isEmailRegistered(user.getEmail()).equals(true)) {
             throw new ResourceConflictException("Email already exists");
