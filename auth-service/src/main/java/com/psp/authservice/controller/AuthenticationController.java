@@ -24,10 +24,10 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<UserTokenState> createAuthenticationToken(
             @RequestBody JwtAuthenticationRequest authenticationRequest) {
-        try{
+        try {
             UserTokenState userTokenState = authenticationService.login(authenticationRequest);
             return ResponseEntity.ok(userTokenState);
-        }catch (AuthenticationException e){
+        } catch (AuthenticationException e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
@@ -37,7 +37,7 @@ public class AuthenticationController {
         try {
             authenticationService.signUp(userDto);
             return new ResponseEntity<>(userDto, HttpStatus.CREATED);
-        } catch (ResourceConflictException e){
+        } catch (ResourceConflictException e) {
             return new ResponseEntity<>(userDto, HttpStatus.CONFLICT);
         }
     }

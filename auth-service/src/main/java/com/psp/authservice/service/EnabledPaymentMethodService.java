@@ -13,7 +13,7 @@ public class EnabledPaymentMethodService {
     @Autowired
     private EnabledPaymentMethodRepository enabledPaymentMethodRepository;
 
-    public EnabledPaymentMethod save(EnabledPaymentMethod enabledPaymentMethod){
+    public EnabledPaymentMethod save(EnabledPaymentMethod enabledPaymentMethod) {
         return enabledPaymentMethodRepository.save(enabledPaymentMethod);
     }
 

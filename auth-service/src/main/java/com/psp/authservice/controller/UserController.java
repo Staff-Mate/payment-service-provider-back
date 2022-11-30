@@ -17,17 +17,17 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/payment-method")
-    public ResponseEntity<?> getAllPaymentMethodsForCompany(Principal principal){
+    public ResponseEntity<?> getAllPaymentMethodsForCompany(Principal principal) {
         return userService.getAllPaymentMethodsForCompany(principal.getName());
     }
 
     @PostMapping("/payment-method")
-    public ResponseEntity<?> addPaymentMethodForCompany(Principal principal, @RequestBody EnabledPaymentMethodDto enabledPaymentMethodDto){
+    public ResponseEntity<?> addPaymentMethodForCompany(Principal principal, @RequestBody EnabledPaymentMethodDto enabledPaymentMethodDto) {
         return userService.addPaymentMethodForCompany(principal.getName(), enabledPaymentMethodDto);
     }
 
     @DeleteMapping("/payment-method/{id}")
-    public ResponseEntity<?> getAllPaymentMethodsForCompany(Principal principal, @PathVariable UUID id){
+    public ResponseEntity<?> getAllPaymentMethodsForCompany(Principal principal, @PathVariable UUID id) {
         return userService.deleteEnabledPaymentMethod(principal.getName(), id);
     }
 }

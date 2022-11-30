@@ -6,6 +6,6 @@ import javax.persistence.Entity;
 
 @Entity
 @NoArgsConstructor
-public class Administrator extends User{
+public class Administrator extends User {
 
 }

@@ -11,7 +11,7 @@ public class RoleService {
     @Autowired
     private RoleRepository repository;
 
-    public Role getById(Integer id){
+    public Role getById(Integer id) {
         return repository.getById(id);
     }
 

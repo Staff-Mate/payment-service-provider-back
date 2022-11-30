@@ -16,27 +16,27 @@ public class PaymentMethodController {
     private PaymentMethodService paymentMethodService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getPaymentMethod(@PathVariable UUID id){
+    public ResponseEntity<?> getPaymentMethod(@PathVariable UUID id) {
         return paymentMethodService.getPaymentMethod(id);
     }
 
     @GetMapping("/")
-    public ResponseEntity<?> getAllPaymentMethod(){
+    public ResponseEntity<?> getAllPaymentMethod() {
         return paymentMethodService.getAllPaymentMethod();
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> addPaymentMethod(@RequestBody PaymentMethodDto paymentMethodDto){
+    public ResponseEntity<?> addPaymentMethod(@RequestBody PaymentMethodDto paymentMethodDto) {
         return paymentMethodService.addPaymentMethod(paymentMethodDto);
     }
 
     @PutMapping("/")
-    public ResponseEntity<?> updatePaymentMethod(@RequestBody PaymentMethodDto paymentMethodDto){
+    public ResponseEntity<?> updatePaymentMethod(@RequestBody PaymentMethodDto paymentMethodDto) {
         return paymentMethodService.updatePaymentMethod(paymentMethodDto);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletePaymentMethod(@PathVariable UUID id){
+    public ResponseEntity<?> deletePaymentMethod(@PathVariable UUID id) {
         return paymentMethodService.deletePaymentMethod(id);
     }
 }

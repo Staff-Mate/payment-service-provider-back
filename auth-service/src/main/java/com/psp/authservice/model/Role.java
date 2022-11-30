@@ -17,11 +17,11 @@ import java.util.Set;
 public class Role implements GrantedAuthority {
 
     @Id
-    @Column(name="id")
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
-    @Column(name="name")
+    @Column(name = "name")
     String name;
 
     @ManyToMany(fetch = FetchType.EAGER)

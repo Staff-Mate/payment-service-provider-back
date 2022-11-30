@@ -23,31 +23,31 @@ public class PaymentMethodService {
     private ModelMapper modelMapper;
 
 
-    public ResponseEntity<?> getPaymentMethod(UUID paymentMethodUUID){
+    public ResponseEntity<?> getPaymentMethod(UUID paymentMethodUUID) {
         PaymentMethod paymentMethod = paymentMethodRepository.findPaymentMethodById(paymentMethodUUID);
         PaymentMethodDto paymentMethodDto = modelMapper.map(paymentMethod, PaymentMethodDto.class);
         return new ResponseEntity<>(paymentMethodDto, HttpStatus.OK);
     }
 
-    public ResponseEntity<?> getAllPaymentMethod(){
+    public ResponseEntity<?> getAllPaymentMethod() {
         List<PaymentMethod> paymentMethods = paymentMethodRepository.findAll();
-        List<PaymentMethodDto> paymentMethodDtos = paymentMethods.stream().map((entity)-> modelMapper.map(entity, PaymentMethodDto.class)).collect(Collectors.toList());
+        List<PaymentMethodDto> paymentMethodDtos = paymentMethods.stream().map((entity) -> modelMapper.map(entity, PaymentMethodDto.class)).collect(Collectors.toList());
         return new ResponseEntity<>(paymentMethodDtos, HttpStatus.OK);
     }
 
-    public ResponseEntity<?> addPaymentMethod(PaymentMethodDto paymentMethodDto){
+    public ResponseEntity<?> addPaymentMethod(PaymentMethodDto paymentMethodDto) {
         PaymentMethod paymentMethod = modelMapper.map(paymentMethodDto, PaymentMethod.class);
         paymentMethod = paymentMethodRepository.save(paymentMethod);
         return new ResponseEntity<>(paymentMethod, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<?> deletePaymentMethod(UUID paymentMethodUUID){
+    public ResponseEntity<?> deletePaymentMethod(UUID paymentMethodUUID) {
         PaymentMethod paymentMethod = paymentMethodRepository.findPaymentMethodById(paymentMethodUUID);
         paymentMethodRepository.delete(paymentMethod);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    public ResponseEntity<?> updatePaymentMethod(PaymentMethodDto paymentMethodDto){
+    public ResponseEntity<?> updatePaymentMethod(PaymentMethodDto paymentMethodDto) {
         PaymentMethod paymentMethod = modelMapper.map(paymentMethodDto, PaymentMethod.class);
         paymentMethod = paymentMethodRepository.save(paymentMethod);
         return new ResponseEntity<>(paymentMethod, HttpStatus.OK);
