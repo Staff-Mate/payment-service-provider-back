@@ -1,6 +1,5 @@
 package com.psp.authservice.model;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -32,5 +33,5 @@ public class RegularUser extends User{
     private String city;
 
     @OneToMany(targetEntity = EnabledPaymentMethod.class, fetch = FetchType.EAGER)
-    private List<EnabledPaymentMethod> enabledPaymentMethods;
+    private List<EnabledPaymentMethod> enabledPaymentMethods = new ArrayList<>();
 }

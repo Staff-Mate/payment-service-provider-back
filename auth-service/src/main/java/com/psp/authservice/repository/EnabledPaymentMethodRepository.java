@@ -8,4 +8,6 @@ import java.util.UUID;
 
 @Repository
 public interface EnabledPaymentMethodRepository extends JpaRepository<EnabledPaymentMethod, UUID> {
+
+    EnabledPaymentMethod findEnabledPaymentMethodById(UUID id);
 }
