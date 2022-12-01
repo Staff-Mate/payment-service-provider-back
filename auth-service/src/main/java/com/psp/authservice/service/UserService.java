@@ -62,7 +62,7 @@ public class UserService implements UserDetailsService {
     }
 
     public RegularUser findUserByApiKey(String apiKey) {
-        return (RegularUser) regularUserRepository.findByApiKey(apiKey);
+        return regularUserRepository.findByApiKey(apiKey);
     }
 
     public ResponseEntity<?> getAllPaymentMethodsForCompany(String userEmail) {
