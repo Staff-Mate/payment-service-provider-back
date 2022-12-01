@@ -23,7 +23,7 @@ public class PaymentRequestService {
         paymentRequest.setMerchantId(servicePaymentDto.getCredentialsId());
         paymentRequest.setMerchantPassword(servicePaymentDto.getCredentialsSecret());
         paymentRequest.setMerchantTimestamp(servicePaymentDto.getTimestamp());
-        paymentRequest.setMerchantOrderId(String.valueOf(Math.floor(Math.random() * 9_000_000_000L) + 1_000_000_000L));
+        paymentRequest.setMerchantOrderId(String.format("%.0f", (Math.floor(Math.random() * 9_000_000_000L) + 1_000_000_000L)));
         paymentRequestRepository.save(paymentRequest);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

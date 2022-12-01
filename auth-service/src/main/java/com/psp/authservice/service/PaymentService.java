@@ -30,7 +30,7 @@ public class PaymentService {
             ServicePaymentDto servicePaymentDto = new ServicePaymentDto(enabledPaymentMethod.getUserId(), enabledPaymentMethod.getUserSecret(), newPaymentDto.getAmount());
             servicePaymentDto.setTimestamp(new Timestamp(System.currentTimeMillis()));
             //TODO: add urls
-            return restTemplate.postForEntity(API_GATEWAY + enabledPaymentMethod.getPaymentMethod().getServiceName() + "/new-payment", servicePaymentDto, String.class);
+            return restTemplate.postForEntity(API_GATEWAY + enabledPaymentMethod.getPaymentMethod().getServiceName() + "/payment-requests/new-payment", servicePaymentDto, String.class);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

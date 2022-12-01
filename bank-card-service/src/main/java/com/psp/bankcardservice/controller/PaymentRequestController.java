@@ -16,7 +16,7 @@ public class PaymentRequestController {
     @Autowired
     private PaymentRequestService paymentRequestService;
 
-    @PostMapping("/new-request")
+    @PostMapping("/new-payment")
     public ResponseEntity<?> createPaymentRequest(@RequestBody ServicePaymentDto servicePaymentDto) {
         return paymentRequestService.createPaymentRequest(servicePaymentDto);
     }
