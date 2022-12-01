@@ -1,6 +1,7 @@
 package com.psp.authservice.service;
 
 import com.psp.authservice.dto.UserDto;
+import com.psp.authservice.model.RegularUser;
 import com.psp.authservice.model.User;
 import com.psp.authservice.security.exception.ResourceConflictException;
 import com.psp.authservice.security.util.JwtAuthenticationRequest;
@@ -60,7 +61,7 @@ public class AuthenticationService {
     }
 
     public void signUp(UserDto userDto) throws ResourceConflictException {
-        User user = modelMapper.map(userDto, User.class);
+        RegularUser user = modelMapper.map(userDto, RegularUser.class);
 
         user.setRole(roleService.getById(1));
         if (userService.isEmailRegistered(user.getEmail()).equals(true)) {

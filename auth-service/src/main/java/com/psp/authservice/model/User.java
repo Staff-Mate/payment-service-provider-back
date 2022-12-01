@@ -1,6 +1,5 @@
 package com.psp.authservice.model;
 
-import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,14 +13,11 @@ import java.util.UUID;
 import static javax.persistence.InheritanceType.TABLE_PER_CLASS;
 
 @Entity
-@NoArgsConstructor
 @Inheritance(strategy = TABLE_PER_CLASS)
-@Table(name = "users")
-public class User implements UserDetails {
+public abstract class User implements UserDetails {
 
     @Id
-    @SequenceGenerator(name = "mySeqGenV1", sequenceName = "mySeqV1", initialValue = 1, allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "mySeqGenV1")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @Column(name = "email", nullable = false)
@@ -32,6 +28,11 @@ public class User implements UserDetails {
 
     @ManyToOne(targetEntity = Role.class, cascade = CascadeType.MERGE)
     private Role role;
+
+    public User() {
+    }
+
+    ;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
