@@ -1,6 +1,6 @@
 package com.psp.bankcardservice.service;
 
-import com.psp.bankcardservice.dto.PaymentRequestDto;
+import com.psp.bankcardservice.dto.ServicePaymentDto;
 import com.psp.bankcardservice.model.PaymentRequest;
 import com.psp.bankcardservice.repository.PaymentRequestRepository;
 import org.modelmapper.ModelMapper;
@@ -18,8 +18,12 @@ public class PaymentRequestService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public ResponseEntity<?> createPaymentRequest(PaymentRequestDto paymentRequestDto) {
-        PaymentRequest paymentRequest = modelMapper.map(paymentRequestDto, PaymentRequest.class);
+    public ResponseEntity<?> createPaymentRequest(ServicePaymentDto servicePaymentDto) {
+        PaymentRequest paymentRequest = modelMapper.map(servicePaymentDto, PaymentRequest.class);
+        paymentRequest.setMerchantId(servicePaymentDto.getCredentialsId());
+        paymentRequest.setMerchantPassword(servicePaymentDto.getCredentialsSecret());
+        paymentRequest.setMerchantTimestamp(servicePaymentDto.getTimestamp());
+        paymentRequest.setMerchantOrderId(String.valueOf(Math.floor(Math.random() * 9_000_000_000L) + 1_000_000_000L));
         paymentRequestRepository.save(paymentRequest);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

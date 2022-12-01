@@ -1,6 +1,6 @@
 package com.psp.bankcardservice.controller;
 
-import com.psp.bankcardservice.dto.PaymentRequestDto;
+import com.psp.bankcardservice.dto.ServicePaymentDto;
 import com.psp.bankcardservice.service.PaymentRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +17,8 @@ public class PaymentRequestController {
     private PaymentRequestService paymentRequestService;
 
     @PostMapping("/new-request")
-    public ResponseEntity<?> createPaymentRequest(@RequestBody PaymentRequestDto paymentRequestDto) {
-        return paymentRequestService.createPaymentRequest(paymentRequestDto);
+    public ResponseEntity<?> createPaymentRequest(@RequestBody ServicePaymentDto servicePaymentDto) {
+        return paymentRequestService.createPaymentRequest(servicePaymentDto);
     }
 
 

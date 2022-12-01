@@ -22,9 +22,12 @@ public class PaymentMethodService {
     @Autowired
     private ModelMapper modelMapper;
 
+    public PaymentMethod findPaymentMethodById(UUID paymentMethodUUID) {
+        return paymentMethodRepository.findPaymentMethodById(paymentMethodUUID);
+    }
 
     public ResponseEntity<?> getPaymentMethod(UUID paymentMethodUUID) {
-        PaymentMethod paymentMethod = paymentMethodRepository.findPaymentMethodById(paymentMethodUUID);
+        PaymentMethod paymentMethod = findPaymentMethodById(paymentMethodUUID);
         PaymentMethodDto paymentMethodDto = modelMapper.map(paymentMethod, PaymentMethodDto.class);
         return new ResponseEntity<>(paymentMethodDto, HttpStatus.OK);
     }

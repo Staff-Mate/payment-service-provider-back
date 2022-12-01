@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @DeleteMapping("/payment-method/{id}")
-    public ResponseEntity<?> getAllPaymentMethodsForCompany(Principal principal, @PathVariable UUID id) {
+    public ResponseEntity<?> deletePaymentMethodsForCompany(Principal principal, @PathVariable UUID id) {
         return userService.deleteEnabledPaymentMethod(principal.getName(), id);
     }
 }

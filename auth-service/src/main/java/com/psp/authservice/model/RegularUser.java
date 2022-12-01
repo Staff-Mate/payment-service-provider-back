@@ -35,6 +35,10 @@ public class RegularUser extends User {
     @Column
     private String city;
 
+    @Column
+    private String apiKey;
+
     @OneToMany(targetEntity = EnabledPaymentMethod.class, fetch = FetchType.EAGER)
     private List<EnabledPaymentMethod> enabledPaymentMethods = new ArrayList<>();
+
 }

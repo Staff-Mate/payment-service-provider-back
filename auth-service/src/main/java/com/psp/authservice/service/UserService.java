@@ -4,6 +4,7 @@ import com.psp.authservice.dto.EnabledPaymentMethodDto;
 import com.psp.authservice.model.EnabledPaymentMethod;
 import com.psp.authservice.model.RegularUser;
 import com.psp.authservice.model.User;
+import com.psp.authservice.repository.RegularUserRepository;
 import com.psp.authservice.repository.UserRepository;
 import com.psp.authservice.security.util.TokenUtils;
 import org.modelmapper.ModelMapper;
@@ -24,6 +25,9 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RegularUserRepository regularUserRepository;
 
     @Autowired
     private TokenUtils tokenUtils;
@@ -57,6 +61,9 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
+    public RegularUser findUserByApiKey(String apiKey) {
+        return (RegularUser) regularUserRepository.findByApiKey(apiKey);
+    }
 
     public ResponseEntity<?> getAllPaymentMethodsForCompany(String userEmail) {
         RegularUser user = (RegularUser) userRepository.findByEmail(userEmail);
@@ -102,4 +109,14 @@ public class UserService implements UserDetailsService {
         }
         return false;
     }
+
+    public EnabledPaymentMethod getPaymentMethodForCompany(RegularUser user, UUID paymentMethodId) {
+        for (EnabledPaymentMethod enabledPaymentMethod : user.getEnabledPaymentMethods()) {
+            if (enabledPaymentMethod.getPaymentMethod().getId().equals(paymentMethodId)) {
+                return enabledPaymentMethod;
+            }
+        }
+        return null;
+    }
+
 }
