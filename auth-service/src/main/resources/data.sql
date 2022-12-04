@@ -3,6 +3,9 @@ VALUES (1, 'ROLE_USER');
 INSERT INTO role
 VALUES (3, 'ROLE_ADMIN');
 
+INSERT INTO administrator
+VALUES ('1fba8a11-f059-4bb3-aa6b-891518865033', 'discash.hr@gmail.com','password',3);
+
 INSERT INTO regular_user
 VALUES ('1fba8a11-f059-4bb3-aa6b-89151886503d', 'nick@gmail.com',
         '$2a$10$jb2dCfj9odULiIVcL5Dd8eiOV8fP9KSpzLULf4hPLMuwhoPglnbRa', 1, '1', '', '', '', '', '', '');
