@@ -9,6 +9,8 @@ import com.psp.authservice.security.util.TokenUtils;
 import com.psp.authservice.security.util.UserTokenState;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -60,7 +62,7 @@ public class AuthenticationService {
                 .collect(Collectors.toList());
     }
 
-    public void signUp(UserDto userDto) throws ResourceConflictException {
+    public ResponseEntity<?> signUp(UserDto userDto) throws ResourceConflictException {
         RegularUser user = modelMapper.map(userDto, RegularUser.class);
 
         user.setRole(roleService.getById(1));
@@ -69,6 +71,7 @@ public class AuthenticationService {
         } else {
             user.setPassword(passwordEncoder.encode(userDto.getPassword()));
             userService.saveUser(user);
+            return new ResponseEntity<>(modelMapper.map(user, UserDto.class), HttpStatus.CREATED);
         }
     }
 

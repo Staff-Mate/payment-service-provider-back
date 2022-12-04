@@ -33,12 +33,11 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserDto> registerUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto) {
         try {
-            authenticationService.signUp(userDto);
-            return new ResponseEntity<>(userDto, HttpStatus.CREATED);
+            return authenticationService.signUp(userDto);
         } catch (ResourceConflictException e) {
-            return new ResponseEntity<>(userDto, HttpStatus.CONFLICT);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }
 
