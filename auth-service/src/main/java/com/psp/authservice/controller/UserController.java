@@ -2,6 +2,7 @@ package com.psp.authservice.controller;
 
 import com.psp.authservice.dto.EnabledPaymentMethodDto;
 import com.psp.authservice.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/users")
+@Slf4j
 public class UserController {
 
     @Autowired
@@ -23,11 +25,13 @@ public class UserController {
 
     @PostMapping("/payment-method")
     public ResponseEntity<?> addPaymentMethodForCompany(Principal principal, @RequestBody EnabledPaymentMethodDto enabledPaymentMethodDto) {
+        log.debug("POST request received - /users/payment-method. User email: {}", principal.getName());
         return userService.addPaymentMethodForCompany(principal.getName(), enabledPaymentMethodDto);
     }
 
     @DeleteMapping("/payment-method/{id}")
     public ResponseEntity<?> deletePaymentMethodsForCompany(Principal principal, @PathVariable UUID id) {
+        log.debug("DELETE request received - /users/payment-method. User email: {}", principal.getName());
         return userService.deleteEnabledPaymentMethod(principal.getName(), id);
     }
 }

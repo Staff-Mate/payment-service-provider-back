@@ -5,6 +5,7 @@ import com.psp.authservice.security.exception.ResourceConflictException;
 import com.psp.authservice.security.util.JwtAuthenticationRequest;
 import com.psp.authservice.security.util.UserTokenState;
 import com.psp.authservice.service.AuthenticationService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/auth")
+@Slf4j
 public class AuthenticationController {
 
     @Autowired
@@ -34,6 +36,7 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserDto userDto) {
+        log.debug("POST request received - /auth/register. User email: {}", userDto.getEmail());
         try {
             return authenticationService.signUp(userDto);
         } catch (ResourceConflictException e) {

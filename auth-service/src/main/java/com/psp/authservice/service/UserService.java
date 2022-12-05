@@ -2,11 +2,13 @@ package com.psp.authservice.service;
 
 import com.psp.authservice.dto.EnabledPaymentMethodDto;
 import com.psp.authservice.model.EnabledPaymentMethod;
+import com.psp.authservice.model.PaymentMethod;
 import com.psp.authservice.model.RegularUser;
 import com.psp.authservice.model.User;
 import com.psp.authservice.repository.RegularUserRepository;
 import com.psp.authservice.repository.UserRepository;
 import com.psp.authservice.security.util.TokenUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class UserService implements UserDetailsService {
 
     @Autowired
@@ -37,6 +40,9 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private EnabledPaymentMethodService enabledPaymentMethodService;
+
+    @Autowired
+    private PaymentMethodService paymentMethodService;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -77,20 +83,34 @@ public class UserService implements UserDetailsService {
     public ResponseEntity<?> addPaymentMethodForCompany(String userEmail, EnabledPaymentMethodDto enabledPaymentMethodDto) {
         RegularUser user = (RegularUser) userRepository.findByEmail(userEmail);
         EnabledPaymentMethod enabledPaymentMethod = modelMapper.map(enabledPaymentMethodDto, EnabledPaymentMethod.class);
+        PaymentMethod paymentMethod = paymentMethodService.findPaymentMethodById(enabledPaymentMethodDto.getPaymentMethod().getId());
+        if (getPaymentMethodForCompany(user, paymentMethod.getId()) == null) {
+            enabledPaymentMethod.setPaymentMethod(paymentMethod);
+            enablePaymentMethodForCompany(user, enabledPaymentMethod);
+            log.debug("Payment method with id: {}, enabled for merchant: {}", paymentMethod.getId(), user.getId());
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } else {
+            log.warn("Payment method with id: {} is already enabled for merchant: {}", paymentMethod.getId(), user.getId());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private void enablePaymentMethodForCompany(RegularUser user, EnabledPaymentMethod enabledPaymentMethod) {
         enabledPaymentMethod = enabledPaymentMethodService.save(enabledPaymentMethod);
         List<EnabledPaymentMethod> userEnabledPaymentMethods = user.getEnabledPaymentMethods();
         userEnabledPaymentMethods.add(enabledPaymentMethod);
         user.setEnabledPaymentMethods(userEnabledPaymentMethods);
         userRepository.save(user);
-        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     public ResponseEntity<?> deleteEnabledPaymentMethod(String userEmail, UUID enabledPaymentMethodId) {
         RegularUser user = (RegularUser) userRepository.findByEmail(userEmail);
         if (isPaymentMethodEnabledForCompany(user, enabledPaymentMethodId)) {
             deleteEnabledPaymentMethod(enabledPaymentMethodId, user);
+            log.debug("Enabled payment method option with id: {}, deleted from merchant: {}", enabledPaymentMethodId, user.getId());
             return new ResponseEntity<>(HttpStatus.OK);
         }
+        log.debug("Merchant {} cannot delete payment method option with id: {} - no payment option with given id", user.getId(), enabledPaymentMethodId);
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 

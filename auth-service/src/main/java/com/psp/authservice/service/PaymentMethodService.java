@@ -3,6 +3,7 @@ package com.psp.authservice.service;
 import com.psp.authservice.dto.PaymentMethodDto;
 import com.psp.authservice.model.PaymentMethod;
 import com.psp.authservice.repository.PaymentMethodRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class PaymentMethodService {
 
     @Autowired
@@ -32,7 +34,7 @@ public class PaymentMethodService {
         return new ResponseEntity<>(paymentMethodDto, HttpStatus.OK);
     }
 
-    public ResponseEntity<?> getAllPaymentMethod() {
+    public ResponseEntity<?> getAllPaymentMethods() {
         List<PaymentMethod> paymentMethods = paymentMethodRepository.findAll();
         List<PaymentMethodDto> paymentMethodDtos = paymentMethods.stream().map((entity) -> modelMapper.map(entity, PaymentMethodDto.class)).collect(Collectors.toList());
         return new ResponseEntity<>(paymentMethodDtos, HttpStatus.OK);
@@ -41,18 +43,21 @@ public class PaymentMethodService {
     public ResponseEntity<?> addPaymentMethod(PaymentMethodDto paymentMethodDto) {
         PaymentMethod paymentMethod = modelMapper.map(paymentMethodDto, PaymentMethod.class);
         paymentMethod = paymentMethodRepository.save(paymentMethod);
+        log.debug("Payment method '{}' added, with id: {}", paymentMethod.getName(), paymentMethod.getId());
         return new ResponseEntity<>(paymentMethod, HttpStatus.CREATED);
     }
 
     public ResponseEntity<?> deletePaymentMethod(UUID paymentMethodUUID) {
         PaymentMethod paymentMethod = paymentMethodRepository.findPaymentMethodById(paymentMethodUUID);
         paymentMethodRepository.delete(paymentMethod);
+        log.debug("Payment method with id: {} deleted.", paymentMethod.getId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     public ResponseEntity<?> updatePaymentMethod(PaymentMethodDto paymentMethodDto) {
         PaymentMethod paymentMethod = modelMapper.map(paymentMethodDto, PaymentMethod.class);
         paymentMethod = paymentMethodRepository.save(paymentMethod);
+        log.debug("Payment method with id: {} updated.", paymentMethod.getId());
         return new ResponseEntity<>(paymentMethod, HttpStatus.OK);
     }
 }

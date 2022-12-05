@@ -7,6 +7,7 @@ import com.psp.authservice.security.exception.ResourceConflictException;
 import com.psp.authservice.security.util.JwtAuthenticationRequest;
 import com.psp.authservice.security.util.TokenUtils;
 import com.psp.authservice.security.util.UserTokenState;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class AuthenticationService {
 
     @Autowired
@@ -67,10 +69,12 @@ public class AuthenticationService {
 
         user.setRole(roleService.getById(1));
         if (userService.isEmailRegistered(user.getEmail()).equals(true)) {
+            log.warn("Already registered email: {} entered in attempted registration.", user.getEmail());
             throw new ResourceConflictException("Email already exists");
         } else {
             user.setPassword(passwordEncoder.encode(userDto.getPassword()));
             userService.saveUser(user);
+            log.debug("User with email: {} registered.", user.getEmail());
             return new ResponseEntity<>(modelMapper.map(user, UserDto.class), HttpStatus.CREATED);
         }
     }
