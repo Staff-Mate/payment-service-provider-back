@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Timestamp;
 import java.util.UUID;
 
 @Getter
@@ -15,4 +16,5 @@ public class EnabledPaymentMethodDto {
     private String userId;
     private String userSecret;
     private PaymentMethodDto paymentMethod;
+    private Timestamp dateAdded;
 }

@@ -31,6 +31,7 @@ public class PaymentRequestService {
         paymentRequest.setMerchantOrderId(String.format("%.0f", (Math.floor(Math.random() * 9_000_000_000L) + 1_000_000_000L)));
         paymentRequestRepository.save(paymentRequest);
         PaymentRequestDto paymentRequestDto = modelMapper.map(paymentRequest, PaymentRequestDto.class);
-        return restTemplate.postForEntity("http://localhost:8080/payments/" , paymentRequestDto, String.class);
+        ResponseEntity<String> response =  restTemplate.postForEntity("http://localhost:8080/payments/" , paymentRequestDto, String.class);
+        return new ResponseEntity<>(response.getBody(),HttpStatus.OK);
     }
 }

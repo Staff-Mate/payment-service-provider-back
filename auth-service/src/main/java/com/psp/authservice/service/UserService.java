@@ -80,6 +80,16 @@ public class UserService implements UserDetailsService {
         return new ResponseEntity<>(userPaymentMethods, HttpStatus.OK);
     }
 
+
+    public ResponseEntity<?> getAllPaymentMethodsForApiKey(String apiKey) {
+        RegularUser user = regularUserRepository.findByApiKey(apiKey);
+        List<EnabledPaymentMethodDto> userPaymentMethods = new ArrayList<>();
+        for (EnabledPaymentMethod enabledPaymentMethod : user.getEnabledPaymentMethods()) {
+            userPaymentMethods.add(modelMapper.map(enabledPaymentMethod, EnabledPaymentMethodDto.class));
+        }
+        return new ResponseEntity<>(userPaymentMethods, HttpStatus.OK);
+    }
+
     public ResponseEntity<?> addPaymentMethodForCompany(String userEmail, EnabledPaymentMethodDto enabledPaymentMethodDto) {
         RegularUser user = (RegularUser) userRepository.findByEmail(userEmail);
         EnabledPaymentMethod enabledPaymentMethod = modelMapper.map(enabledPaymentMethodDto, EnabledPaymentMethod.class);

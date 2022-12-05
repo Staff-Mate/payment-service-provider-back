@@ -3,8 +3,10 @@ package com.psp.authservice.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.UUID;
 
 @Entity
@@ -26,5 +28,8 @@ public class EnabledPaymentMethod {
 
     @ManyToOne(targetEntity = PaymentMethod.class, fetch = FetchType.EAGER)
     private PaymentMethod paymentMethod;
+
+    @CreationTimestamp
+    private Timestamp dateAdded;
 
 }

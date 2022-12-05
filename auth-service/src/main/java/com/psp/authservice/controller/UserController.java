@@ -23,6 +23,11 @@ public class UserController {
         return userService.getAllPaymentMethodsForCompany(principal.getName());
     }
 
+    @GetMapping("/payment-method/{apiKey}")
+    public ResponseEntity<?> getAllPaymentMethodsForApiKey(@PathVariable String apiKey) {
+        return userService.getAllPaymentMethodsForApiKey(apiKey);
+    }
+
     @PostMapping("/payment-method")
     public ResponseEntity<?> addPaymentMethodForCompany(Principal principal, @RequestBody EnabledPaymentMethodDto enabledPaymentMethodDto) {
         log.debug("POST request received - /users/payment-method. User email: {}", principal.getName());
