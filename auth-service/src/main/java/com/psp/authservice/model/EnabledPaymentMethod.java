@@ -1,5 +1,6 @@
 package com.psp.authservice.model;
 
+import com.psp.authservice.util.AttributeEncryptor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,6 +25,7 @@ public class EnabledPaymentMethod {
     private String userId;
 
     @Column
+    @Convert(converter = AttributeEncryptor.class)
     private String userSecret;
 
     @ManyToOne(targetEntity = PaymentMethod.class, fetch = FetchType.EAGER)
