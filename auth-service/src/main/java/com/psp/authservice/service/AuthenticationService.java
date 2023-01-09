@@ -1,5 +1,6 @@
 package com.psp.authservice.service;
 
+import com.psp.authservice.dto.LoggedInUserDto;
 import com.psp.authservice.dto.UserDto;
 import com.psp.authservice.model.RegularUser;
 import com.psp.authservice.model.User;
@@ -79,4 +80,16 @@ public class AuthenticationService {
         }
     }
 
+    public ResponseEntity<?> getLoggedInUser(String token) {
+        User user = this.userService.getUserFromToken(token);
+        LoggedInUserDto dto = new LoggedInUserDto();
+        dto.setPermissions(user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
+        dto.setEmail(user.getEmail());
+        if(user.getClass().equals(RegularUser.class)){
+            dto.setDisplayName(((RegularUser) user).getCompanyName());
+        }else{
+            dto.setDisplayName("Administrator");
+        }
+        return new ResponseEntity<>(dto, HttpStatus.OK);
+    }
 }

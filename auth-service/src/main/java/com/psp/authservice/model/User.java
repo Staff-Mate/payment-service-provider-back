@@ -29,10 +29,7 @@ public abstract class User implements UserDetails {
     @ManyToOne(targetEntity = Role.class, cascade = CascadeType.MERGE)
     private Role role;
 
-    public User() {
-    }
-
-    ;
+    public User() {}
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
