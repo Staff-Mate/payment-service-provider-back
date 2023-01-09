@@ -1,5 +1,6 @@
 package com.psp.authservice.controller;
 
+import com.psp.authservice.dto.ErrorDto;
 import com.psp.authservice.dto.UserDto;
 import com.psp.authservice.security.exception.ResourceConflictException;
 import com.psp.authservice.security.util.JwtAuthenticationRequest;
@@ -26,13 +27,13 @@ public class AuthenticationController {
     private AuthenticationService authenticationService;
 
     @PostMapping("/login")
-    public ResponseEntity<UserTokenState> createAuthenticationToken(
+    public ResponseEntity<?> createAuthenticationToken(
             @RequestBody JwtAuthenticationRequest authenticationRequest) {
         try {
             UserTokenState userTokenState = authenticationService.login(authenticationRequest);
             return ResponseEntity.ok(userTokenState);
         } catch (AuthenticationException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ErrorDto("Authentication unsuccessful. Username or password incorrect.", e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
 
