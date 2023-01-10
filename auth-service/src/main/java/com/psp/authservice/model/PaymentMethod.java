@@ -28,7 +28,7 @@ public class PaymentMethod {
     @Column
     private String serviceName;
 
-    @Column
+    @Column(length = 1024)
     private String description;
 
 }
