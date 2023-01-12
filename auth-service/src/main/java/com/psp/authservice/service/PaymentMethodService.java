@@ -35,9 +35,13 @@ public class PaymentMethodService {
     }
 
     public ResponseEntity<?> getAllPaymentMethods() {
-        List<PaymentMethod> paymentMethods = paymentMethodRepository.findAll();
-        List<PaymentMethodDto> paymentMethodDtos = paymentMethods.stream().map((entity) -> modelMapper.map(entity, PaymentMethodDto.class)).collect(Collectors.toList());
+        List<PaymentMethodDto> paymentMethodDtos = findAllPaymentMethods();
         return new ResponseEntity<>(paymentMethodDtos, HttpStatus.OK);
+    }
+
+    public List<PaymentMethodDto> findAllPaymentMethods() {
+        List<PaymentMethod> paymentMethods = paymentMethodRepository.findAll();
+        return paymentMethods.stream().map((entity) -> modelMapper.map(entity, PaymentMethodDto.class)).collect(Collectors.toList());
     }
 
     public ResponseEntity<?> addPaymentMethod(PaymentMethodDto paymentMethodDto) {
