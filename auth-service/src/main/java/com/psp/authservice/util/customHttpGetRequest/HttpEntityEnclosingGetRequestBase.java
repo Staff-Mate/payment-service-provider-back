@@ -5,7 +5,7 @@ import org.springframework.http.HttpMethod;
 
 import java.net.URI;
 
-public class HttpEntityEnclosingGetRequestBase  extends HttpEntityEnclosingRequestBase {
+public class HttpEntityEnclosingGetRequestBase extends HttpEntityEnclosingRequestBase {
     public HttpEntityEnclosingGetRequestBase(final URI uri) {
         super.setURI(uri);
     }

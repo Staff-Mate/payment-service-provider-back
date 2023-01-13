@@ -37,7 +37,7 @@ public class HistoryService {
 
     private static String findHistoryPath(String status) {
         String path = "/history/";
-        if(status != null) {
+        if (status != null) {
             if (status.equals("ACTIVE")) {
                 path += "active";
             }

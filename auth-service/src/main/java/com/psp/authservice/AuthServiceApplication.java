@@ -14,6 +14,10 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @SpringBootApplication
 public class AuthServiceApplication {
 
+    public static void main(String[] args) {
+        SpringApplication.run(AuthServiceApplication.class, args);
+    }
+
     @Bean
     public ModelMapper modelMapper() {
         return new ModelMapper();
@@ -27,10 +31,6 @@ public class AuthServiceApplication {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(AuthServiceApplication.class, args);
     }
 
 }

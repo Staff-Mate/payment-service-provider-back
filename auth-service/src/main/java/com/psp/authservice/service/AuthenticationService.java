@@ -85,9 +85,9 @@ public class AuthenticationService {
         LoggedInUserDto dto = new LoggedInUserDto();
         dto.setPermissions(user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
         dto.setEmail(user.getEmail());
-        if(user.getClass().equals(RegularUser.class)){
+        if (user.getClass().equals(RegularUser.class)) {
             dto.setDisplayName(((RegularUser) user).getCompanyName());
-        }else{
+        } else {
             dto.setDisplayName("Administrator");
         }
         return new ResponseEntity<>(dto, HttpStatus.OK);

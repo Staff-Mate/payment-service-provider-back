@@ -46,7 +46,7 @@ public class AuthenticationController {
     @GetMapping("/")
     public ResponseEntity<?> getLoggedInUser(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization) {
         try {
-            if(authorization.equals("")){
+            if (authorization.equals("")) {
                 return new ResponseEntity<>(null, HttpStatus.OK);
             }
             return authenticationService.getLoggedInUser(authorization.split("Bearer ")[1]);
