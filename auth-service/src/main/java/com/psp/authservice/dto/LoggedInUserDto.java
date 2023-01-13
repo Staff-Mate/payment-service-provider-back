@@ -10,7 +10,11 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class LoggedInUserDto {
-
+    private String firstName;
+    private String lastName;
+    private String country;
+    private String state;
+    private String city;
     private String email;
     private String displayName;
     private List<String> permissions;

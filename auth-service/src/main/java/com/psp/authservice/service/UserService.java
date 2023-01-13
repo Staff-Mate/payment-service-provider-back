@@ -1,6 +1,8 @@
 package com.psp.authservice.service;
 
 import com.psp.authservice.dto.EnabledPaymentMethodDto;
+import com.psp.authservice.dto.OwnerDto;
+import com.psp.authservice.dto.PasswordDto;
 import com.psp.authservice.model.EnabledPaymentMethod;
 import com.psp.authservice.model.PaymentMethod;
 import com.psp.authservice.model.RegularUser;
@@ -57,6 +59,14 @@ public class UserService implements UserDetailsService {
         }
     }
 
+    public User getUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new UsernameNotFoundException(String.format("No user found with email '%s'.", email));
+        } else {
+            return user;
+        }
+    }
     public User getUserFromToken(String token) {
         String email = tokenUtils.getEmailFromToken(token);
         return userRepository.findByEmail(email);
@@ -159,4 +169,14 @@ public class UserService implements UserDetailsService {
         return null;
     }
 
+    public ResponseEntity<?> updateOwnerName(String userEmail, OwnerDto ownerDto) {
+        RegularUser user = (RegularUser) userRepository.findByEmail(userEmail);
+        if(user == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        user.setFirstName(ownerDto.getFirstName());
+        user.setLastName(ownerDto.getLastName());
+        userRepository.save(user);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

@@ -1,6 +1,7 @@
 package com.psp.authservice.service;
 
 import com.psp.authservice.dto.LoggedInUserDto;
+import com.psp.authservice.dto.PasswordDto;
 import com.psp.authservice.dto.UserDto;
 import com.psp.authservice.model.RegularUser;
 import com.psp.authservice.model.User;
@@ -83,13 +84,26 @@ public class AuthenticationService {
     public ResponseEntity<?> getLoggedInUser(String token) {
         User user = this.userService.getUserFromToken(token);
         LoggedInUserDto dto = new LoggedInUserDto();
-        dto.setPermissions(user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
-        dto.setEmail(user.getEmail());
         if (user.getClass().equals(RegularUser.class)) {
+            dto = modelMapper.map(user, LoggedInUserDto.class);
             dto.setDisplayName(((RegularUser) user).getCompanyName());
         } else {
             dto.setDisplayName("Administrator");
         }
+        dto.setPermissions(user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
+        dto.setEmail(user.getEmail());
         return new ResponseEntity<>(dto, HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> changePassword(String token, PasswordDto passwordDto) {
+        User user = this.userService.getUserFromToken(token);
+        if(passwordEncoder.matches(passwordDto.getOldPassword(),user.getPassword()) && passwordDto.getNewPassword().equals(passwordDto.getConfirmPassword())){
+            user.setPassword(passwordEncoder.encode(passwordDto.getNewPassword()));
+            userService.saveUser(user);
+            log.debug("User with email: {} changed password.", user.getEmail());
+            return new ResponseEntity<>(HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 }
