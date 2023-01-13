@@ -25,6 +25,8 @@ public class ServicePaymentDto {
 
     private String errorUrl;
 
+    private String merchantBankUrl;
+
     public ServicePaymentDto(String credentialsId, String credentialsSecret, Double amount) {
         this.credentialsId = credentialsId;
         this.credentialsSecret = credentialsSecret;

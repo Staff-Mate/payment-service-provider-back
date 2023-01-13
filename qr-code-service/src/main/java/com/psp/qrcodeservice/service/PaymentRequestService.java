@@ -51,7 +51,7 @@ public class PaymentRequestService {
 
         PaymentRequestDto paymentRequestDto = modelMapper.map(paymentRequest, PaymentRequestDto.class);
         paymentRequestDto.setMerchantPassword(servicePaymentDto.getCredentialsSecret());
-        ResponseEntity<String> response = restTemplate.postForEntity("http://localhost:8080/payments/", paymentRequestDto, String.class); // TODO: replace with merchantBankUrl + /payments/
+        ResponseEntity<String> response = restTemplate.postForEntity(servicePaymentDto.getMerchantBankUrl() +"/payments/" , paymentRequestDto, String.class);
         try {
             generateQrCode(Objects.requireNonNull(response.getBody()).substring(response.getBody().length() - 10), servicePaymentDto.getCredentialsId(), servicePaymentDto.getAmount());
         }

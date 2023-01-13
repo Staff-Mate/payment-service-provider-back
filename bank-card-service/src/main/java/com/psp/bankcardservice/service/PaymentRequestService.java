@@ -28,7 +28,6 @@ public class PaymentRequestService {
     public ResponseEntity<?> createPaymentRequest(ServicePaymentDto servicePaymentDto) {
         PaymentRequest paymentRequest = modelMapper.map(servicePaymentDto, PaymentRequest.class);
         paymentRequest.setMerchantId(servicePaymentDto.getCredentialsId());
-        paymentRequest.setMerchantPassword(servicePaymentDto.getCredentialsSecret());
         paymentRequest.setMerchantTimestamp(servicePaymentDto.getTimestamp());
         paymentRequest.setMerchantOrderId(String.format("%.0f", (Math.floor(Math.random() * 9_000_000_000L) + 1_000_000_000L)));
 
@@ -37,7 +36,8 @@ public class PaymentRequestService {
                 paymentRequest.getId(), paymentRequest.getMerchantId(), paymentRequest.getMerchantOrderId());
 
         PaymentRequestDto paymentRequestDto = modelMapper.map(paymentRequest, PaymentRequestDto.class);
-        ResponseEntity<String> response =  restTemplate.postForEntity("http://localhost:8080/payments/" , paymentRequestDto, String.class);
+        paymentRequestDto.setMerchantPassword(servicePaymentDto.getCredentialsSecret());
+        ResponseEntity<String> response =  restTemplate.postForEntity( servicePaymentDto.getMerchantBankUrl() +"/payments/" , paymentRequestDto, String.class);
         return new ResponseEntity<>(response.getBody(),HttpStatus.OK);
     }
 }

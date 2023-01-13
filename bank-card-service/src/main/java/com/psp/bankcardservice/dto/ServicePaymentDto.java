@@ -25,4 +25,6 @@ public class ServicePaymentDto {
 
     private String errorUrl;
 
+    private String merchantBankUrl;
+
 }

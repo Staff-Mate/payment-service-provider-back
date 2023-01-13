@@ -25,6 +25,6 @@ public class ServicePaymentDto {
 
     private String errorUrl;
 
-    private String merchantBankUrl; // TODO: add to bank-card-service and auth-service
+    private String merchantBankUrl;
 
 }

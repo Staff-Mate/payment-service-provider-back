@@ -32,10 +32,10 @@ public class PaymentService {
             log.debug("Payment process started with {}, for merchant: {}", enabledPaymentMethod.getPaymentMethod().getName(), user.getId());
             ServicePaymentDto servicePaymentDto = new ServicePaymentDto(enabledPaymentMethod.getUserId(), enabledPaymentMethod.getUserSecret(), newPaymentDto.getAmount());
             servicePaymentDto.setTimestamp(new Timestamp(System.currentTimeMillis()));
-            //TODO: add urls
-            servicePaymentDto.setErrorUrl("http://localhost:4200/payment/error");
-            servicePaymentDto.setFailedUrl("http://localhost:4200/payment/fail");
-            servicePaymentDto.setSuccessUrl("http://localhost:4200/payment/success");
+            servicePaymentDto.setMerchantBankUrl(user.getBank().getBankUrl());
+            servicePaymentDto.setErrorUrl(user.getErrorUrl());
+            servicePaymentDto.setFailedUrl(user.getFailedUrl());
+            servicePaymentDto.setSuccessUrl(user.getSuccessUrl());
             return restTemplate.postForEntity(API_GATEWAY + enabledPaymentMethod.getPaymentMethod().getServiceName() + "/payment-requests/new-payment", servicePaymentDto, String.class);
         } else {
             log.error("Payment attempt with unsupported method: {}, for merchant: {}", newPaymentDto.getPaymentMethodId(), user.getId());
