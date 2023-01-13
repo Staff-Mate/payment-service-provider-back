@@ -3,13 +3,13 @@ package com.psp.authservice.service;
 import com.psp.authservice.dto.HistoryFilterDto;
 import com.psp.authservice.dto.ServiceHistoryFilterDto;
 import com.psp.authservice.dto.TransactionDto;
+import com.psp.authservice.model.EnabledPaymentMethod;
 import com.psp.authservice.model.RegularUser;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -25,6 +25,7 @@ import java.util.Objects;
 @Service
 public class HistoryService {
 
+    private final String API_GATEWAY = "http://localhost:9000/";
     @Autowired
     private UserService userService;
     @Autowired
@@ -34,57 +35,41 @@ public class HistoryService {
     @Autowired
     private ModelMapper modelMapper;
 
-    private final String API_GATEWAY = "http://localhost:9000/";
+    private static String findHistoryPath(String status) {
+        String path = "/history/";
+        if(status != null) {
+            if (status.equals("ACTIVE")) {
+                path += "active";
+            }
+        }
+        return path;
+    }
 
-    public ResponseEntity<?> getFilteredResponses(String merchantEmail, HistoryFilterDto historyFilterDto) {
+    public ResponseEntity<?> getFilteredHistory(String merchantEmail, HistoryFilterDto historyFilterDto) {
+        String path = findHistoryPath(historyFilterDto.getStatus());
         RegularUser user = (RegularUser) userService.loadUserByUsername(merchantEmail);
         ServiceHistoryFilterDto serviceHistoryFilterDto = modelMapper.map(historyFilterDto, ServiceHistoryFilterDto.class);
-        serviceHistoryFilterDto.setPageSize(historyFilterDto.getPageSize()/paymentMethodService.findAllPaymentMethods().size());
+        serviceHistoryFilterDto.setPageSize(historyFilterDto.getPageSize() / paymentMethodService.findAllPaymentMethods().size());
         List<TransactionDto> transactions = new ArrayList<>();
-        if(historyFilterDto.getServiceId() != null && !historyFilterDto.getServiceId().equals("")){
+        if (historyFilterDto.getServiceId() != null && !historyFilterDto.getServiceId().equals("")) {
             user.getEnabledPaymentMethods().forEach(enabledPaymentMethod -> {
-                if(enabledPaymentMethod.getPaymentMethod().getId().toString().equals(historyFilterDto.getServiceId())){
-                    serviceHistoryFilterDto.setMerchantId(enabledPaymentMethod.getUserId());
-                    serviceHistoryFilterDto.setServiceName(enabledPaymentMethod.getPaymentMethod().getServiceName());
-                    ResponseEntity<TransactionDto[]> responseEntity = restTemplate.exchange(API_GATEWAY + enabledPaymentMethod.getPaymentMethod().getServiceName() + "/history/", HttpMethod.GET,new HttpEntity<>(serviceHistoryFilterDto) , TransactionDto[].class);
-                    transactions.addAll(Arrays.asList(Objects.requireNonNull(responseEntity.getBody())));
+                if (enabledPaymentMethod.getPaymentMethod().getId().toString().equals(historyFilterDto.getServiceId())) {
+                    transactions.addAll(getTransactions(path, serviceHistoryFilterDto, enabledPaymentMethod));
                 }
             });
-        }else{
-            user.getEnabledPaymentMethods().forEach(enabledPaymentMethod -> {
-                serviceHistoryFilterDto.setMerchantId(enabledPaymentMethod.getUserId());
-                serviceHistoryFilterDto.setServiceName(enabledPaymentMethod.getPaymentMethod().getServiceName());
-                ResponseEntity<TransactionDto[]> responseEntity = restTemplate.exchange(API_GATEWAY + enabledPaymentMethod.getPaymentMethod().getServiceName() + "/history/", HttpMethod.GET,new HttpEntity<>(serviceHistoryFilterDto) , TransactionDto[].class);
-                transactions.addAll(Arrays.asList(Objects.requireNonNull(responseEntity.getBody())));
-            });
+        } else {
+            user.getEnabledPaymentMethods().forEach(enabledPaymentMethod -> transactions.addAll(getTransactions(path, serviceHistoryFilterDto, enabledPaymentMethod)));
         }
         final Page<TransactionDto> page = new PageImpl<>(transactions, PageRequest.of(historyFilterDto.getPage(), historyFilterDto.getPageSize()), transactions.size());
         return new ResponseEntity<>(page, HttpStatus.OK);
     }
 
-    public ResponseEntity<?> getFilteredRequests(String merchantEmail, HistoryFilterDto historyFilterDto) {
-        RegularUser user = (RegularUser) userService.loadUserByUsername(merchantEmail);
-        ServiceHistoryFilterDto serviceHistoryFilterDto = modelMapper.map(historyFilterDto, ServiceHistoryFilterDto.class);
-        serviceHistoryFilterDto.setPageSize(historyFilterDto.getPageSize()/paymentMethodService.findAllPaymentMethods().size());
-        List<TransactionDto> transactions = new ArrayList<>();
-        if(historyFilterDto.getServiceId() != null && !historyFilterDto.getServiceId().equals("")){
-            user.getEnabledPaymentMethods().forEach(enabledPaymentMethod -> {
-                if(enabledPaymentMethod.getPaymentMethod().getId().toString().equals(historyFilterDto.getServiceId())){
-                    serviceHistoryFilterDto.setMerchantId(enabledPaymentMethod.getUserId());
-                    serviceHistoryFilterDto.setServiceName(enabledPaymentMethod.getPaymentMethod().getServiceName());
-                    ResponseEntity<TransactionDto[]> responseEntity = restTemplate.exchange(API_GATEWAY + enabledPaymentMethod.getPaymentMethod().getServiceName() + "/history/active", HttpMethod.GET,new HttpEntity<>(serviceHistoryFilterDto) , TransactionDto[].class);
-                    transactions.addAll(Arrays.asList(Objects.requireNonNull(responseEntity.getBody())));
-                }
-            });
-        }else{
-            user.getEnabledPaymentMethods().forEach(enabledPaymentMethod -> {
-                serviceHistoryFilterDto.setMerchantId(enabledPaymentMethod.getUserId());
-                serviceHistoryFilterDto.setServiceName(enabledPaymentMethod.getPaymentMethod().getServiceName());
-                ResponseEntity<TransactionDto[]> responseEntity = restTemplate.exchange(API_GATEWAY + enabledPaymentMethod.getPaymentMethod().getServiceName() + "/history/active", HttpMethod.GET,new HttpEntity<>(serviceHistoryFilterDto) , TransactionDto[].class);
-                transactions.addAll(Arrays.asList(Objects.requireNonNull(responseEntity.getBody())));
-            });
-        }
-        final Page<TransactionDto> page = new PageImpl<>(transactions, PageRequest.of(historyFilterDto.getPage(), historyFilterDto.getPageSize()), transactions.size());
-        return new ResponseEntity<>(page, HttpStatus.OK);
+    private List<TransactionDto> getTransactions(String path, ServiceHistoryFilterDto serviceHistoryFilterDto, EnabledPaymentMethod enabledPaymentMethod) {
+        serviceHistoryFilterDto.setMerchantId(enabledPaymentMethod.getUserId());
+        serviceHistoryFilterDto.setServiceName(enabledPaymentMethod.getPaymentMethod().getServiceName());
+        ResponseEntity<TransactionDto[]> responseEntity = restTemplate.exchange(API_GATEWAY + enabledPaymentMethod.getPaymentMethod().getServiceName() + path, HttpMethod.GET, new HttpEntity<>(serviceHistoryFilterDto), TransactionDto[].class);
+        return Arrays.asList(Objects.requireNonNull(responseEntity.getBody()));
     }
+
+
 }

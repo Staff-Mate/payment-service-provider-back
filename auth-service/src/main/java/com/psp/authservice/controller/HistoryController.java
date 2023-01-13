@@ -22,11 +22,11 @@ public class HistoryController {
 
     @PostMapping("/")
     public ResponseEntity<?> getFilteredResponses(Principal principal, @RequestBody HistoryFilterDto historyFilterDto) {
-        return historyService.getFilteredResponses(principal.getName(), historyFilterDto);
+        return historyService.getFilteredHistory(principal.getName(), historyFilterDto);
     }
 
     @PostMapping("/active")
     public ResponseEntity<?> getFilteredRequests(Principal principal, @RequestBody HistoryFilterDto historyFilterDto) {
-        return historyService.getFilteredRequests(principal.getName(), historyFilterDto);
+        return historyService.getFilteredHistory(principal.getName(), historyFilterDto);
     }
 }
