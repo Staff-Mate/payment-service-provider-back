@@ -101,7 +101,7 @@ public class UserService implements UserDetailsService {
             enabledPaymentMethod.setPaymentMethod(paymentMethod);
             List<EnabledPaymentMethod> enabledPaymentMethods = enablePaymentMethodForCompany(user, enabledPaymentMethod);
             log.debug("Payment method with id: {}, enabled for merchant: {}", paymentMethod.getId(), user.getId());
-            return new ResponseEntity<>(enabledPaymentMethods.stream().map(enabledPayment -> modelMapper.map(enabledPayment, EnabledPaymentMethodDto.class)),HttpStatus.CREATED);
+            return new ResponseEntity<>(enabledPaymentMethods.stream().map(enabledPayment -> modelMapper.map(enabledPayment, EnabledPaymentMethodDto.class)), HttpStatus.CREATED);
         } else {
             log.warn("Payment method with id: {} is already enabled for merchant: {}", paymentMethod.getId(), user.getId());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -122,7 +122,7 @@ public class UserService implements UserDetailsService {
         if (isPaymentMethodEnabledForCompany(user, enabledPaymentMethodId)) {
             List<EnabledPaymentMethod> enabledPaymentMethods = deleteEnabledPaymentMethod(enabledPaymentMethodId, user);
             log.debug("Enabled payment method option with id: {}, deleted from merchant: {}", enabledPaymentMethodId, user.getId());
-            return new ResponseEntity<>(enabledPaymentMethods.stream().map(enabledPaymentMethod -> modelMapper.map(enabledPaymentMethod, EnabledPaymentMethodDto.class)),HttpStatus.OK);
+            return new ResponseEntity<>(enabledPaymentMethods.stream().map(enabledPaymentMethod -> modelMapper.map(enabledPaymentMethod, EnabledPaymentMethodDto.class)), HttpStatus.OK);
         }
         log.debug("Merchant {} cannot delete payment method option with id: {} - no payment option with given id", user.getId(), enabledPaymentMethodId);
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -130,8 +130,8 @@ public class UserService implements UserDetailsService {
 
     private List<EnabledPaymentMethod> deleteEnabledPaymentMethod(UUID enabledPaymentMethodId, RegularUser user) {
         EnabledPaymentMethod enabledPaymentMethod = enabledPaymentMethodService.findById(enabledPaymentMethodId);
-        for(int i =0 ; i < user.getEnabledPaymentMethods().size() ; i++) {
-            if(enabledPaymentMethod.getId().equals(user.getEnabledPaymentMethods().get(i).getId())){
+        for (int i = 0; i < user.getEnabledPaymentMethods().size(); i++) {
+            if (enabledPaymentMethod.getId().equals(user.getEnabledPaymentMethods().get(i).getId())) {
                 user.getEnabledPaymentMethods().remove(user.getEnabledPaymentMethods().get(i));
                 userRepository.save(user);
                 enabledPaymentMethodService.delete(enabledPaymentMethod);
