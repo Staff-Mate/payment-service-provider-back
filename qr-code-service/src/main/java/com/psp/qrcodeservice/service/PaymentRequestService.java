@@ -54,7 +54,7 @@ public class PaymentRequestService {
         paymentRequestDto.setIsBankCardPayment(false);
         ResponseEntity<String> response = restTemplate.postForEntity(servicePaymentDto.getMerchantBankUrl() +"/payments/" , paymentRequestDto, String.class);
         try {
-            generateQrCode(Objects.requireNonNull(response.getBody()).substring(response.getBody().length() - 10), servicePaymentDto.getCredentialsId(), servicePaymentDto.getAmount());
+            generateQrCode(Objects.requireNonNull(response.getBody()).substring(response.getBody().length() - 10), servicePaymentDto);
         }
         catch (IOException | WriterException ex) {
             return new ResponseEntity<>(response.getBody(), HttpStatus.BAD_REQUEST);
@@ -62,9 +62,10 @@ public class PaymentRequestService {
         return new ResponseEntity<>(response.getBody(), HttpStatus.OK);
     }
 
-    private void generateQrCode(String paymentId, String merchantId, Double amount) throws IOException, WriterException {
-        PaymentInfoDto paymentInfoDto = new PaymentInfoDto(); // TODO: call bank service and get merchant info
-        paymentInfoDto.setAmount(amount);
+    private void generateQrCode(String paymentId, ServicePaymentDto servicePaymentDto) throws IOException, WriterException {
+        ResponseEntity<PaymentInfoDto> response = restTemplate.getForEntity(servicePaymentDto.getMerchantBankUrl() +"/merchants/" + servicePaymentDto.getCredentialsId() , PaymentInfoDto.class);
+        PaymentInfoDto paymentInfoDto = Objects.requireNonNull(response.getBody());
+        paymentInfoDto.setAmount(servicePaymentDto.getAmount());
         String qrText = formQrText(paymentInfoDto);
         String path = "./src/main/resources/qr-codes/" + paymentId + ".png";
         String filePath = new File(path).getAbsolutePath();
