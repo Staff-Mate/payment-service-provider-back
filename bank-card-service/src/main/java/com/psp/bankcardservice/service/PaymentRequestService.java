@@ -37,6 +37,7 @@ public class PaymentRequestService {
 
         PaymentRequestDto paymentRequestDto = modelMapper.map(paymentRequest, PaymentRequestDto.class);
         paymentRequestDto.setMerchantPassword(servicePaymentDto.getCredentialsSecret());
+        paymentRequestDto.setIsBankCardPayment(true);
         ResponseEntity<String> response =  restTemplate.postForEntity( servicePaymentDto.getMerchantBankUrl() +"/payments/" , paymentRequestDto, String.class);
         return new ResponseEntity<>(response.getBody(),HttpStatus.OK);
     }

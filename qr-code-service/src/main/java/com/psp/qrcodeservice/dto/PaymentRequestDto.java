@@ -24,6 +24,8 @@ public class PaymentRequestDto {
 
     private Timestamp merchantTimestamp;
 
+    private Boolean isBankCardPayment;
+
     private String successUrl;
 
     private String failedUrl;
