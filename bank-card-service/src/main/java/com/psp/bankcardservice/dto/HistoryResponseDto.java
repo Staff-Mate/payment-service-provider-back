@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 public class HistoryResponseDto {
     private String serviceName;
-    private String transactionStatus;
+    private String status;
     private Double amount;
     private Timestamp timestamp;
 

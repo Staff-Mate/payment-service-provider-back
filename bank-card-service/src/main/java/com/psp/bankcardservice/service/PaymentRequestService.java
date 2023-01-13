@@ -49,7 +49,7 @@ public class PaymentRequestService {
     public List<HistoryResponseDto> getFilteredHistory(HistoryFilterDto historyFilterDto) {
         Pageable pageable = PageRequest.of(historyFilterDto.getPage(), historyFilterDto.getPageSize());
         Page<PaymentRequest> requests = paymentRequestRepository.findByMerchantIdAndActive(historyFilterDto.getMerchantId(), true, pageable);
-        Page<HistoryResponseDto> requestsDto = requests.map(paymentRequest -> new HistoryResponseDto(historyFilterDto.getServiceName(), null, paymentRequest.getAmount(), paymentRequest.getMerchantTimestamp()));
+        Page<HistoryResponseDto> requestsDto = requests.map(paymentRequest -> new HistoryResponseDto(historyFilterDto.getServiceName(), "ACTIVE", paymentRequest.getAmount(), paymentRequest.getMerchantTimestamp()));
         return requestsDto.getContent();
     }
 

@@ -11,7 +11,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class TransactionDto {
     private String serviceName;
-    private String transactionStatus;
+    private String status;
     private Double amount;
     private Timestamp timestamp;
 }
