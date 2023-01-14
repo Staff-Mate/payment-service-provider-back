@@ -55,7 +55,7 @@ public class PaymentMethodService {
         PaymentMethod paymentMethod = paymentMethodRepository.findPaymentMethodById(paymentMethodUUID);
         paymentMethodRepository.delete(paymentMethod);
         log.debug("Payment method with id: {} deleted.", paymentMethod.getId());
-        return new ResponseEntity<>(HttpStatus.OK);
+        return getAllPaymentMethods();
     }
 
     public ResponseEntity<?> updatePaymentMethod(PaymentMethodDto paymentMethodDto) {
