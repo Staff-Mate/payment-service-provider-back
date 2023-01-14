@@ -1,15 +1,15 @@
 package com.psp.authservice.service;
 
-import com.psp.authservice.dto.EnabledPaymentMethodDto;
-import com.psp.authservice.dto.OwnerDto;
-import com.psp.authservice.dto.PasswordDto;
+import com.psp.authservice.dto.*;
 import com.psp.authservice.model.EnabledPaymentMethod;
 import com.psp.authservice.model.PaymentMethod;
 import com.psp.authservice.model.RegularUser;
 import com.psp.authservice.model.User;
 import com.psp.authservice.repository.EnabledPaymentMethodRepository;
 import com.psp.authservice.repository.RegularUserRepository;
+import com.psp.authservice.repository.RoleRepository;
 import com.psp.authservice.repository.UserRepository;
+import com.psp.authservice.repository.specification.UserSpecification;
 import com.psp.authservice.security.util.TokenUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -24,10 +24,13 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class UserService implements UserDetailsService {
+    @Autowired
+    private RoleRepository roleRepository;
     @Autowired
     private EnabledPaymentMethodRepository enabledPaymentMethodRepository;
 
@@ -59,14 +62,6 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public User getUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email);
-        if (user == null) {
-            throw new UsernameNotFoundException(String.format("No user found with email '%s'.", email));
-        } else {
-            return user;
-        }
-    }
     public User getUserFromToken(String token) {
         String email = tokenUtils.getEmailFromToken(token);
         return userRepository.findByEmail(email);
@@ -178,5 +173,27 @@ public class UserService implements UserDetailsService {
         user.setLastName(ownerDto.getLastName());
         userRepository.save(user);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> getAllUsers() {
+        List<User> users = regularUserRepository.findAllByRole_Name("ROLE_USER");
+        List<RegularUser> regularUsers = users.stream().map(user -> (RegularUser) user).collect(Collectors.toList());
+        return new ResponseEntity<>(mapToRegularUserDto(regularUsers),HttpStatus.OK);
+    }
+
+    private List<RegularUserDto> mapToRegularUserDto(List<RegularUser> regularUsers) {
+        List<RegularUserDto> regularUserDtoList = regularUsers.stream().map(regularUser -> {
+            RegularUserDto regularUserDto = modelMapper.map(regularUser, RegularUserDto.class);
+            List<PaymentMethod> paymentMethods = regularUser.getEnabledPaymentMethods().stream().map(EnabledPaymentMethod::getPaymentMethod).collect(Collectors.toList());
+            List<PaymentMethodDto> paymentMethodDtoList = paymentMethods.stream().map(paymentMethod -> modelMapper.map(paymentMethod,PaymentMethodDto.class)).collect(Collectors.toList());
+            regularUserDto.setPaymentMethods(paymentMethodDtoList);
+            return regularUserDto;
+        }).collect(Collectors.toList());
+        return regularUserDtoList;
+    }
+
+    public ResponseEntity<?> getFilteredUsers(UserFilterDto userFilterDto) {
+        List<RegularUser> regularUsers = regularUserRepository.findAll(UserSpecification.getFilteredUsers(userFilterDto));
+        return new ResponseEntity<>(mapToRegularUserDto(regularUsers),HttpStatus.OK);
     }
 }

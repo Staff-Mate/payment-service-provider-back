@@ -2,6 +2,7 @@ package com.psp.authservice.controller;
 
 import com.psp.authservice.dto.EnabledPaymentMethodDto;
 import com.psp.authservice.dto.OwnerDto;
+import com.psp.authservice.dto.UserFilterDto;
 import com.psp.authservice.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,16 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @GetMapping("/")
+    public ResponseEntity<?> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
+    @PostMapping("/")
+    public ResponseEntity<?> getFilteredUsers(@RequestBody UserFilterDto userFilterDto) {
+        return userService.getFilteredUsers(userFilterDto);
+    }
 
     @GetMapping("/payment-method")
     public ResponseEntity<?> getAllPaymentMethodsForCompany(Principal principal) {
