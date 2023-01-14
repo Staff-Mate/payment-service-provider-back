@@ -19,7 +19,7 @@ public class PaymentResponseController {
     private PaymentResponseService paymentResponseService;
 
     @PostMapping("/")
-    public ResponseEntity<?> acceptPaymentResponse(@RequestBody PaymentResponseDto paymentResponseDto){
+    public ResponseEntity<?> acceptPaymentResponse(@RequestBody PaymentResponseDto paymentResponseDto) {
         log.debug("POST request received - /payments/. Payment id: {}, transaction status: {}",
                 paymentResponseDto.getPaymentId(), paymentResponseDto.getTransactionStatus());
         return paymentResponseService.acceptPaymentResponse(paymentResponseDto);

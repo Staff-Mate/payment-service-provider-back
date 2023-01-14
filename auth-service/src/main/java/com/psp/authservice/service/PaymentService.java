@@ -17,13 +17,11 @@ import java.sql.Timestamp;
 @Slf4j
 public class PaymentService {
 
+    private final String API_GATEWAY = "http://localhost:9000/";
     @Autowired
     private UserService userService;
-
     @Autowired
     private RestTemplate restTemplate;
-
-    private final String API_GATEWAY = "http://localhost:9000/";
 
     public ResponseEntity<?> createPayment(NewPaymentDto newPaymentDto) {
         RegularUser user = userService.findUserByApiKey(newPaymentDto.getApiKey());

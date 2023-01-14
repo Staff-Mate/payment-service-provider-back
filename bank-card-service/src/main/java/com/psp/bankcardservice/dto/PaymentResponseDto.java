@@ -19,5 +19,7 @@ public class PaymentResponseDto {
     private String merchantId;
     private String acquirerOrderId;
     private Timestamp acquirerTimestamp;
+    private String merchantOrderId;
+    private Timestamp merchantTimestamp;
 
 }

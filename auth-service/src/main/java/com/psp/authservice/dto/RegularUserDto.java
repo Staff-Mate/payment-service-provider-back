@@ -9,13 +9,11 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class LoggedInUserDto {
+public class RegularUserDto {
+
+    private String email;
+    private String companyName;
     private String firstName;
     private String lastName;
-    private String country;
-    private String state;
-    private String city;
-    private String email;
-    private String displayName;
-    private List<String> permissions;
+    private List<PaymentMethodDto> paymentMethods;
 }

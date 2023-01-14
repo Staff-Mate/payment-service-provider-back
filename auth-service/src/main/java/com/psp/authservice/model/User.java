@@ -29,7 +29,8 @@ public abstract class User implements UserDetails {
     @ManyToOne(targetEntity = Role.class, cascade = CascadeType.MERGE)
     private Role role;
 
-    public User() {}
+    public User() {
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -68,8 +69,16 @@ public abstract class User implements UserDetails {
         return id;
     }
 
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
     public String getEmail() {
         return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @Override
@@ -77,20 +86,12 @@ public abstract class User implements UserDetails {
         return password;
     }
 
-    public Role getRole() {
-        return role;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Role getRole() {
+        return role;
     }
 
     public void setRole(Role role) {

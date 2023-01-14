@@ -15,12 +15,10 @@ import java.util.Base64;
 @Component
 public class AttributeEncryptor implements AttributeConverter<String, String> {
 
-    private String algorithm;
-
-    private String secret;
-
     private final Key key;
     private final Cipher cipher;
+    private String algorithm;
+    private String secret;
 
     public AttributeEncryptor(@Value("${ALGORITHM}") String algorithm, @Value("${SECRET}") String secret) throws Exception {
         this.algorithm = algorithm;
