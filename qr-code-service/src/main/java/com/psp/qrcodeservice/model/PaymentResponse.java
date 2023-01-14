@@ -18,7 +18,7 @@ public class PaymentResponse {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(length = 10)
+    @Column
     private String paymentId;
 
     @Column
@@ -28,9 +28,13 @@ public class PaymentResponse {
     @Column(length = 30)
     private String merchantId;
 
-    @Column(length = 10)
+    @Column
     private String acquirerOrderId;
 
     @Column
     private Timestamp acquirerTimestamp;
+
+    @OneToOne(orphanRemoval = true)
+    @JoinColumn(name = "payment_request_id")
+    private PaymentRequest paymentRequest;
 }

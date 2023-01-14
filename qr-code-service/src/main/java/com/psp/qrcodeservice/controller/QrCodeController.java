@@ -15,7 +15,7 @@ public class QrCodeController {
     private QrCodeService qrCodeService;
 
     @GetMapping(value = "/{image}")
-    public @ResponseBody ResponseEntity<?> getImage(@PathVariable("image") String imageName){
+    public @ResponseBody ResponseEntity<?> getImage(@PathVariable("image") String imageName) {
         return qrCodeService.getQrCodeImage(imageName);
     }
 }

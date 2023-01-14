@@ -9,18 +9,18 @@ import org.springframework.web.client.RestTemplate;
 @SpringBootApplication
 public class QrCodeServiceApplication {
 
-	@Bean
-	public ModelMapper modelMapper() {
-		return new ModelMapper();
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(QrCodeServiceApplication.class, args);
+    }
 
-	@Bean
-	public RestTemplate restTemplate() {
-		return new RestTemplate();
-	}
+    @Bean
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
+    }
 
-	public static void main(String[] args) {
-		SpringApplication.run(QrCodeServiceApplication.class, args);
-	}
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
 
 }

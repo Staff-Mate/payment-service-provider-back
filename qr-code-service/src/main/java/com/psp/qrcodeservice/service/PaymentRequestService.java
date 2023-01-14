@@ -3,9 +3,7 @@ package com.psp.qrcodeservice.service;
 
 import com.google.zxing.NotFoundException;
 import com.google.zxing.WriterException;
-import com.psp.qrcodeservice.dto.PaymentInfoDto;
-import com.psp.qrcodeservice.dto.PaymentRequestDto;
-import com.psp.qrcodeservice.dto.ServicePaymentDto;
+import com.psp.qrcodeservice.dto.*;
 import com.psp.qrcodeservice.model.PaymentRequest;
 import com.psp.qrcodeservice.model.QrCode;
 import com.psp.qrcodeservice.repository.PaymentRequestRepository;
@@ -13,6 +11,9 @@ import com.psp.qrcodeservice.util.QrCodeGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -52,18 +54,17 @@ public class PaymentRequestService {
         PaymentRequestDto paymentRequestDto = modelMapper.map(paymentRequest, PaymentRequestDto.class);
         paymentRequestDto.setMerchantPassword(servicePaymentDto.getCredentialsSecret());
         paymentRequestDto.setIsBankCardPayment(false);
-        ResponseEntity<String> response = restTemplate.postForEntity(servicePaymentDto.getMerchantBankUrl() +"/payments/" , paymentRequestDto, String.class);
+        ResponseEntity<String> response = restTemplate.postForEntity(servicePaymentDto.getMerchantBankUrl() + "/payments/", paymentRequestDto, String.class);
         try {
             generateQrCode(Objects.requireNonNull(response.getBody()).substring(response.getBody().length() - 10), servicePaymentDto);
-        }
-        catch (IOException | WriterException ex) {
+        } catch (IOException | WriterException ex) {
             return new ResponseEntity<>(response.getBody(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(response.getBody(), HttpStatus.OK);
     }
 
     private void generateQrCode(String paymentId, ServicePaymentDto servicePaymentDto) throws IOException, WriterException {
-        ResponseEntity<PaymentInfoDto> response = restTemplate.getForEntity(servicePaymentDto.getMerchantBankUrl() +"/merchants/" + servicePaymentDto.getCredentialsId() , PaymentInfoDto.class);
+        ResponseEntity<PaymentInfoDto> response = restTemplate.getForEntity(servicePaymentDto.getMerchantBankUrl() + "/merchants/" + servicePaymentDto.getCredentialsId(), PaymentInfoDto.class);
         PaymentInfoDto paymentInfoDto = Objects.requireNonNull(response.getBody());
         paymentInfoDto.setAmount(servicePaymentDto.getAmount());
         String qrText = formQrText(paymentInfoDto);
@@ -96,5 +97,19 @@ public class PaymentRequestService {
     private String formQrText(PaymentInfoDto paymentInfoDto) {
         return "recipient:" + paymentInfoDto.getMerchantCompanyName() + "|account:" + paymentInfoDto.getMerchantAccountNumber()
                 + "|amount:" + paymentInfoDto.getAmount() + "|currency:USD";
+    }
+
+
+    public List<HistoryResponseDto> getFilteredHistory(HistoryFilterDto historyFilterDto) {
+        Pageable pageable = PageRequest.of(historyFilterDto.getPage(), historyFilterDto.getPageSize());
+        Page<PaymentRequest> requests = paymentRequestRepository.findByMerchantIdAndActive(historyFilterDto.getMerchantId(), true, pageable);
+        Page<HistoryResponseDto> requestsDto = requests.map(paymentRequest -> new HistoryResponseDto(historyFilterDto.getServiceName(), "ACTIVE", paymentRequest.getAmount(), paymentRequest.getMerchantTimestamp()));
+        return requestsDto.getContent();
+    }
+
+    public void updateActiveStatus(PaymentResponseDto paymentResponseDto) {
+        PaymentRequest paymentRequest = paymentRequestRepository.findByMerchantOrderId(paymentResponseDto.getMerchantOrderId());
+        paymentRequest.setActive(false);
+        paymentRequestRepository.save(paymentRequest);
     }
 }
