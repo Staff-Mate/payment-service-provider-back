@@ -17,5 +17,9 @@ public class LoggedInUserDto {
     private String city;
     private String email;
     private String displayName;
+    private String errorUrl;
+    private String failedUrl;
+    private String successUrl;
+    private BankDto bank;
     private List<String> permissions;
 }

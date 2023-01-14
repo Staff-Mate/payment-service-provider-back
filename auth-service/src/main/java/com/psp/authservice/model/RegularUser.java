@@ -35,7 +35,7 @@ public class RegularUser extends User {
     @Column
     private String apiKey;
 
-    @OneToOne(orphanRemoval = true)
+    @OneToOne
     @JoinColumn(name = "bank_id")
     private Bank bank;
 

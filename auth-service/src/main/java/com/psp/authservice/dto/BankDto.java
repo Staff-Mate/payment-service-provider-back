@@ -7,7 +7,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class OwnerDto {
-    private String firstName;
-    private String lastName;
+public class BankDto {
+
+    private String id;
+    private String name;
+    private String bankUrl;
 }

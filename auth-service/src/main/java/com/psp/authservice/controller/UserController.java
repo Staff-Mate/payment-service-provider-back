@@ -1,7 +1,7 @@
 package com.psp.authservice.controller;
 
 import com.psp.authservice.dto.EnabledPaymentMethodDto;
-import com.psp.authservice.dto.OwnerDto;
+import com.psp.authservice.dto.UserDto;
 import com.psp.authservice.dto.UserFilterDto;
 import com.psp.authservice.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -53,8 +53,8 @@ public class UserController {
     }
 
     @PutMapping("/")
-    public ResponseEntity<?> updateOwnerName(Principal principal, @RequestBody OwnerDto ownerDto) {
+    public ResponseEntity<?> updateProfile(Principal principal, @RequestBody UserDto userDto) {
         log.debug("PUT request received - /users/. User email: {}", principal.getName());
-        return userService.updateOwnerName(principal.getName(), ownerDto);
+        return userService.updateProfile(principal.getName(), userDto);
     }
 }

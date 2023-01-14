@@ -5,10 +5,7 @@ import com.psp.authservice.model.EnabledPaymentMethod;
 import com.psp.authservice.model.PaymentMethod;
 import com.psp.authservice.model.RegularUser;
 import com.psp.authservice.model.User;
-import com.psp.authservice.repository.EnabledPaymentMethodRepository;
-import com.psp.authservice.repository.RegularUserRepository;
-import com.psp.authservice.repository.RoleRepository;
-import com.psp.authservice.repository.UserRepository;
+import com.psp.authservice.repository.*;
 import com.psp.authservice.repository.specification.UserSpecification;
 import com.psp.authservice.security.util.TokenUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -30,9 +27,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserService implements UserDetailsService {
     @Autowired
-    private RoleRepository roleRepository;
-    @Autowired
-    private EnabledPaymentMethodRepository enabledPaymentMethodRepository;
+    private BankService bankService;
 
     @Autowired
     private UserRepository userRepository;
@@ -118,7 +113,7 @@ public class UserService implements UserDetailsService {
         List<EnabledPaymentMethod> userEnabledPaymentMethods = user.getEnabledPaymentMethods();
         userEnabledPaymentMethods.add(enabledPaymentMethod);
         user.setEnabledPaymentMethods(userEnabledPaymentMethods);
-        userRepository.save(user);
+        regularUserRepository.save(user);
         return user.getEnabledPaymentMethods();
     }
 
@@ -138,7 +133,7 @@ public class UserService implements UserDetailsService {
         for (int i = 0; i < user.getEnabledPaymentMethods().size(); i++) {
             if (enabledPaymentMethod.getId().equals(user.getEnabledPaymentMethods().get(i).getId())) {
                 user.getEnabledPaymentMethods().remove(user.getEnabledPaymentMethods().get(i));
-                userRepository.save(user);
+                regularUserRepository.save(user);
                 enabledPaymentMethodService.delete(enabledPaymentMethod);
                 return user.getEnabledPaymentMethods();
             }
@@ -164,14 +159,18 @@ public class UserService implements UserDetailsService {
         return null;
     }
 
-    public ResponseEntity<?> updateOwnerName(String userEmail, OwnerDto ownerDto) {
+    public ResponseEntity<?> updateProfile(String userEmail, UserDto userDto) {
         RegularUser user = (RegularUser) userRepository.findByEmail(userEmail);
         if(user == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        user.setFirstName(ownerDto.getFirstName());
-        user.setLastName(ownerDto.getLastName());
-        userRepository.save(user);
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        user.setBank(bankService.getBankById(userDto.getBank().getId()));
+        user.setSuccessUrl(userDto.getSuccessUrl());
+        user.setErrorUrl(userDto.getErrorUrl());
+        user.setFailedUrl(userDto.getFailedUrl());
+        regularUserRepository.save(user);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -182,14 +181,13 @@ public class UserService implements UserDetailsService {
     }
 
     private List<RegularUserDto> mapToRegularUserDto(List<RegularUser> regularUsers) {
-        List<RegularUserDto> regularUserDtoList = regularUsers.stream().map(regularUser -> {
+        return regularUsers.stream().map(regularUser -> {
             RegularUserDto regularUserDto = modelMapper.map(regularUser, RegularUserDto.class);
             List<PaymentMethod> paymentMethods = regularUser.getEnabledPaymentMethods().stream().map(EnabledPaymentMethod::getPaymentMethod).collect(Collectors.toList());
             List<PaymentMethodDto> paymentMethodDtoList = paymentMethods.stream().map(paymentMethod -> modelMapper.map(paymentMethod,PaymentMethodDto.class)).collect(Collectors.toList());
             regularUserDto.setPaymentMethods(paymentMethodDtoList);
             return regularUserDto;
         }).collect(Collectors.toList());
-        return regularUserDtoList;
     }
 
     public ResponseEntity<?> getFilteredUsers(UserFilterDto userFilterDto) {

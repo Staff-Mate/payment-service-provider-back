@@ -3,6 +3,7 @@ package com.psp.authservice.service;
 import com.psp.authservice.dto.LoggedInUserDto;
 import com.psp.authservice.dto.PasswordDto;
 import com.psp.authservice.dto.UserDto;
+import com.psp.authservice.model.Bank;
 import com.psp.authservice.model.RegularUser;
 import com.psp.authservice.model.User;
 import com.psp.authservice.security.exception.ResourceConflictException;
@@ -46,6 +47,9 @@ public class AuthenticationService {
     private RoleService roleService;
 
     @Autowired
+    private BankService bankService;
+
+    @Autowired
     private ModelMapper modelMapper;
 
     public UserTokenState login(JwtAuthenticationRequest authenticationRequest) throws AuthenticationException {
@@ -68,7 +72,7 @@ public class AuthenticationService {
 
     public ResponseEntity<?> signUp(UserDto userDto) throws ResourceConflictException {
         RegularUser user = modelMapper.map(userDto, RegularUser.class);
-
+        user.setBank(bankService.getBankById(userDto.getBank().getId()));
         user.setRole(roleService.getById(1));
         if (userService.isEmailRegistered(user.getEmail()).equals(true)) {
             log.warn("Already registered email: {} entered in attempted registration.", user.getEmail());
