@@ -1,4 +1,4 @@
-package com.bitcoinservice;
+package com.psp.bitcoinservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
