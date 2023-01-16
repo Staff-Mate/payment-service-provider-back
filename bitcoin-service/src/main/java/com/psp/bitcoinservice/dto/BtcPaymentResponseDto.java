@@ -21,4 +21,6 @@ public class BtcPaymentResponseDto {
     private String order_id;
 
     private String payment_url;
+
+    private String status;
 }
