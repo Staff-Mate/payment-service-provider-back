@@ -30,7 +30,7 @@ public class QrCodeService {
             UrlResource resource = new UrlResource("file:" + filePath);
             return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
                     .contentType(MediaTypeFactory
-                            .getMediaType(resource)
+                            .getMediaType(resource.getFile().getAbsolutePath())
                             .orElse(MediaType.APPLICATION_OCTET_STREAM))
                     .body(resource);
         } catch (IOException e) {
