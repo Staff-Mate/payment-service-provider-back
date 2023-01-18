@@ -1,18 +1,21 @@
 package com.psp.bitcoinservice.dto;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
+import java.sql.Timestamp;
+
 @Setter
-@AllArgsConstructor
+@Getter
 @NoArgsConstructor
-public class TransactionDto {
+@AllArgsConstructor
+public class HistoryResponseDto {
+    private String serviceName;
     private String status;
-
     private Double amount;
+    private Timestamp timestamp;
 
-    private String timestamp;
 }

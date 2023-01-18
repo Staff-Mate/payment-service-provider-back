@@ -12,7 +12,8 @@ import java.sql.Timestamp;
 public class HistoryFilterDto {
 
     private String serviceName;
-    private String merchantId;
+    private String credentialsId;
+    private String credentialsSecret;
     private String status;
     private Timestamp startDate;
     private Timestamp endDate;

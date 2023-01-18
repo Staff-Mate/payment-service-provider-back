@@ -60,12 +60,14 @@ public class HistoryService {
         } else {
             user.getEnabledPaymentMethods().forEach(enabledPaymentMethod -> transactions.addAll(getTransactions(path, serviceHistoryFilterDto, enabledPaymentMethod)));
         }
+        transactions.sort((o1, o2) -> o1.getTimestamp().compareTo(o2.getTimestamp()));
         final Page<TransactionDto> page = new PageImpl<>(transactions, PageRequest.of(historyFilterDto.getPage(), historyFilterDto.getPageSize()), transactions.size());
         return new ResponseEntity<>(page, HttpStatus.OK);
     }
 
     private List<TransactionDto> getTransactions(String path, ServiceHistoryFilterDto serviceHistoryFilterDto, EnabledPaymentMethod enabledPaymentMethod) {
-        serviceHistoryFilterDto.setMerchantId(enabledPaymentMethod.getUserId());
+        serviceHistoryFilterDto.setCredentialsId(enabledPaymentMethod.getUserId());
+        serviceHistoryFilterDto.setCredentialsSecret(enabledPaymentMethod.getUserSecret());
         serviceHistoryFilterDto.setServiceName(enabledPaymentMethod.getPaymentMethod().getServiceName());
         ResponseEntity<TransactionDto[]> responseEntity = restTemplate.exchange(API_GATEWAY + enabledPaymentMethod.getPaymentMethod().getServiceName() + path, HttpMethod.GET, new HttpEntity<>(serviceHistoryFilterDto), TransactionDto[].class);
         return Arrays.asList(Objects.requireNonNull(responseEntity.getBody()));

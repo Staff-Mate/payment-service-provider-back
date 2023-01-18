@@ -1,4 +1,4 @@
-package com.psp.authservice.dto;
+package com.psp.bitcoinservice.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -6,10 +6,11 @@ import lombok.Setter;
 
 import java.sql.Timestamp;
 
-@Getter
 @Setter
+@Getter
 @NoArgsConstructor
-public class ServiceHistoryFilterDto {
+public class HistoryFilterDto {
+
     private String serviceName;
     private String credentialsId;
     private String credentialsSecret;

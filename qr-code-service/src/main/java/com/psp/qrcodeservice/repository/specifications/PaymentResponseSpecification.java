@@ -17,7 +17,7 @@ public class PaymentResponseSpecification {
         return (root, criteriaQuery, criteriaBuilder) -> {
             Join<PaymentRequest, PaymentResponse> requestResponseJoin = root.join("paymentRequest");
             List<Predicate> predicates = new ArrayList<>();
-            predicates.add(criteriaBuilder.equal(root.get("merchantId"), historyFilterDto.getMerchantId()));
+            predicates.add(criteriaBuilder.equal(root.get("merchantId"), historyFilterDto.getCredentialsId()));
 
             if (historyFilterDto.getStatus() != null && !historyFilterDto.getStatus().equals("")) {
                 predicates.add(criteriaBuilder.equal(root.get("transactionStatus"), TransactionStatus.valueOf(historyFilterDto.getStatus())));
