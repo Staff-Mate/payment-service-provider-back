@@ -5,6 +5,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -13,9 +17,9 @@ import javax.persistence.Entity;
 public class PayPalPaymentResponse {
     // TODO
 
-    // @Id
-    //    @GeneratedValue(strategy = GenerationType.AUTO)
-    //    private UUID id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
     //    @Column
     //    private Long btcId;
     //    @Column
