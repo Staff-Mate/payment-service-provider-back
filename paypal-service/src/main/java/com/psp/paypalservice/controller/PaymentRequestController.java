@@ -29,7 +29,11 @@ public class PaymentRequestController {
         log.debug("POST request received - /payment-requests/new-payment. Credentials id: {}, amount: {}",
                 servicePaymentDto.getCredentialsId(), servicePaymentDto.getAmount());
 
-        return paymentRequestService.createPayment(servicePaymentDto);
+        if(servicePaymentDto.getBillingCycle().equals("ONE_TIME")){
+            return paymentRequestService.createPayment(servicePaymentDto);
+        }
+
+        return paymentRequestService.createSubscription(servicePaymentDto);
     }
 
     ////https://example.com/return?paymentId=PAYID-MPMOTVA82587878KX934172W&token=EC-64689213Y9451631J&PayerID=8QV4E6BDM47D6

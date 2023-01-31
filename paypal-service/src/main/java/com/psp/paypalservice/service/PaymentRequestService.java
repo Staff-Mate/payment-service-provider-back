@@ -131,6 +131,55 @@ public class PaymentRequestService {
 //        PAYMENT RESPONSE SACUVATI?
     }
 
+    public ResponseEntity<?> createSubscription(ServicePaymentDto servicePaymentDto) {
+        // Merchant preference
+        MerchantPreferences merchantPreferences = new MerchantPreferences();
+        merchantPreferences.setReturnUrl(servicePaymentDto.getSuccessUrl());
+        merchantPreferences.setCancelUrl(servicePaymentDto.getFailedUrl());
+        merchantPreferences.setAutoBillAmount("YES");
+
+        // Payment definitions
+        PaymentDefinition paymentDefinition = new PaymentDefinition();
+        paymentDefinition.setAmount(new Currency("USD", servicePaymentDto.getAmount().toString()));
+        paymentDefinition.setType("REGULAR");
+        paymentDefinition.setFrequency(servicePaymentDto.getBillingCycle());
+        paymentDefinition.setFrequencyInterval("1");
+        paymentDefinition.setCycles("0");
+        paymentDefinition.setName("Indefinite");
+
+        List<PaymentDefinition> paymentDefinitions = new ArrayList<>();
+        paymentDefinitions.add(paymentDefinition);
+
+        // Create billing plan
+        Plan plan = new Plan();
+        plan.setMerchantPreferences(merchantPreferences);
+        plan.setPaymentDefinitions(paymentDefinitions);
+        plan.setState("ACTIVE");
+        plan.setType("INFINITE");
+        plan.setName(servicePaymentDto.getBillingCycle() + "LY  PLAN");
+        plan.setDescription("Subscription plan");
+
+        try{
+            apiContext = new APIContext(servicePaymentDto.getCredentialsId(),
+                    servicePaymentDto.getCredentialsSecret(),"sandbox");
+            plan = plan.create(apiContext);
+            //log
+            // //SAD JE CREATED
+            System.out.println("USPEH");
+
+            return  new ResponseEntity<String>("<h1>uspeh</h1>", HttpStatus.OK);
+        }catch(Exception e) {
+            e.printStackTrace();
+            System.out.println("NO");
+            return new ResponseEntity<String>("", HttpStatus.BAD_REQUEST);
+        }
+
+        //create agreement
+
+        //return redirectUrl
+
+    }
+
 
     //https://example.com/return?paymentId=PAYID-MPMOTVA82587878KX934172W&token=EC-64689213Y9451631J&PayerID=8QV4E6BDM47D6
 //    DOBILA SAM  MOJ SUCCESS URL SA PARAMETRIMA PAYMENT ID i TOKEN i PAYERID
