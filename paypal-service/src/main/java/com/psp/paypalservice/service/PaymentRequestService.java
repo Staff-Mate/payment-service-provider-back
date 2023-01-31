@@ -44,6 +44,7 @@ public class PaymentRequestService {
         RedirectUrls urls = new RedirectUrls();
         urls.setCancelUrl(servicePaymentDto.getFailedUrl()); // ili error url?
         urls.setReturnUrl(servicePaymentDto.getSuccessUrl());
+//        urls.setReturnUrl("http://localhost:9200/payment-requests/success")
 
         Amount amount = new Amount();
         amount.setCurrency("USD");
@@ -55,7 +56,7 @@ public class PaymentRequestService {
         transactions.add(transaction);
 
         Payment payment = new Payment();
-        payment.setIntent("authorize");
+        payment.setIntent("sale");
         payment.setPayer(payer);
         payment.setRedirectUrls(urls);
         payment.setTransactions(transactions);
@@ -91,17 +92,6 @@ public class PaymentRequestService {
         PaymentExecution paymentExecution = new PaymentExecution();
         paymentExecution.setPayerId(payerID);
         try{
-
-//            APIContext apiContext = new APIContext(token); //ili zakaciti header
-//            apiContext.setMode("sandbox");
-//            APIContext apiContext = new APIContext("AS9Sr7pcJ59Al-lWOE-NB0lkhywiie5Vj54ojlyDa0RFxBwROOXeDo18Zcnj_lxe1zqIXJfqgjFqgk9_",
-//                    "EJ2cpVwTjU4H47YXif04PscF-hOxWrViq-O8ZydA_QCRcgBv0qYE7QPtl6xmvjy0S_zBQ9OsXKVOwtDQ","sandbox");
-
-
-//            Map<String,String> headers = new HashMap<String,String>();
-//            headers.put("Authorization", "Bearer " + token);
-//            apiContext.setHTTPHeaders(headers);
-
 
             payment = payment.execute(apiContext, paymentExecution);
 
