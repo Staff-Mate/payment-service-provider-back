@@ -28,6 +28,7 @@ public class PaymentRequestController {
     public ResponseEntity<?> createPaymentRequest(@RequestBody ServicePaymentDto servicePaymentDto) {
         log.debug("POST request received - /payment-requests/new-payment. Credentials id: {}, amount: {}",
                 servicePaymentDto.getCredentialsId(), servicePaymentDto.getAmount());
+
         return paymentRequestService.createPayment(servicePaymentDto);
     }
 
@@ -40,7 +41,7 @@ public class PaymentRequestController {
         return paymentRequestService.executePayment(paymentId, token, PayerID);
     }
 
-    @PostMapping("/success")
+    @PostMapping("/success") // TODO predlog za body, da se prepakuje na frontu
     public ResponseEntity<?> success(@RequestBody PaypalPaymentResponseDto dto) {
         System.out.println(" _______________________________________________ BODY");
         System.out.print(dto.getPaymentId());

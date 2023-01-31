@@ -32,7 +32,7 @@ public class PaymentRequestService {
     @Autowired
     private RestTemplate restTemplate;
 
-//    private APIContext apiContext;
+    private APIContext apiContext;
 
     // 1 CREATE ORDER
 
@@ -66,7 +66,7 @@ public class PaymentRequestService {
         payment.setRedirectUrls(urls);
         payment.setTransactions(transactions);
 
-        APIContext apiContext = new APIContext(servicePaymentDto.getCredentialsId(),
+        apiContext = new APIContext(servicePaymentDto.getCredentialsId(),
                 servicePaymentDto.getCredentialsSecret(),"sandbox");
 
         try{
@@ -100,8 +100,8 @@ public class PaymentRequestService {
 
 //            APIContext apiContext = new APIContext(token); //ili zakaciti header
 //            apiContext.setMode("sandbox");
-            APIContext apiContext = new APIContext("AS9Sr7pcJ59Al-lWOE-NB0lkhywiie5Vj54ojlyDa0RFxBwROOXeDo18Zcnj_lxe1zqIXJfqgjFqgk9_",
-                    "EJ2cpVwTjU4H47YXif04PscF-hOxWrViq-O8ZydA_QCRcgBv0qYE7QPtl6xmvjy0S_zBQ9OsXKVOwtDQ","sandbox");
+//            APIContext apiContext = new APIContext("AS9Sr7pcJ59Al-lWOE-NB0lkhywiie5Vj54ojlyDa0RFxBwROOXeDo18Zcnj_lxe1zqIXJfqgjFqgk9_",
+//                    "EJ2cpVwTjU4H47YXif04PscF-hOxWrViq-O8ZydA_QCRcgBv0qYE7QPtl6xmvjy0S_zBQ9OsXKVOwtDQ","sandbox");
 
 
 //            Map<String,String> headers = new HashMap<String,String>();
