@@ -138,13 +138,13 @@ public class PaymentRequestService {
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        calendar.add(Calendar.MINUTE, 5);
+        calendar.add(Calendar.MINUTE, 1);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
         Payer payer = new Payer();
         payer.setPaymentMethod("paypal");
-        Plan plan = new Plan();
+        Plan plan = new Plan(); //!!!!!!!!!!!!!!!!!!!
         plan.setId(planId);
 
         Agreement agreement = new Agreement();
@@ -171,6 +171,7 @@ public class PaymentRequestService {
         merchantPreferences.setReturnUrl(servicePaymentDto.getSuccessUrl());    //TREBA DA IMA execute putanju, ili success
         merchantPreferences.setCancelUrl(servicePaymentDto.getFailedUrl());
         merchantPreferences.setAutoBillAmount("YES");
+        merchantPreferences.setSetupFee(new Currency("USD", "1.11"));
 
         // Payment definitions
         PaymentDefinition paymentDefinition = new PaymentDefinition();
@@ -178,8 +179,8 @@ public class PaymentRequestService {
         paymentDefinition.setType("REGULAR");
         paymentDefinition.setFrequency(servicePaymentDto.getBillingCycle());
         paymentDefinition.setFrequencyInterval("1");
-        paymentDefinition.setCycles("0");
-        paymentDefinition.setName("Indefinite");
+        paymentDefinition.setCycles("12");
+        paymentDefinition.setName("12 payments");
 
         List<PaymentDefinition> paymentDefinitions = new ArrayList<>();
         paymentDefinitions.add(paymentDefinition);
@@ -189,9 +190,11 @@ public class PaymentRequestService {
         plan.setMerchantPreferences(merchantPreferences);
         plan.setPaymentDefinitions(paymentDefinitions);
         plan.setState("ACTIVE");
-        plan.setType("INFINITE");
+        plan.setType("fixed");
+//        plan.setType("INFINITE"); v1
         plan.setName(servicePaymentDto.getBillingCycle() + "LY  PLAN");
         plan.setDescription("Subscription plan");
+
 
         try{
             apiContext = new APIContext(servicePaymentDto.getCredentialsId(),
@@ -227,9 +230,19 @@ public class PaymentRequestService {
         return plan;
     }
 
-    public ResponseEntity<?> executePayment(String token, String ba_token) {
+    public ResponseEntity<?> executeAgreement(String token, String ba_token) {
 
-        return new ResponseEntity<>("<h1>execute"+ token + ba_token +"</h1>", HttpStatus.OK);
+        Agreement agreement = new Agreement();
+        try{
+            agreement =  agreement.execute(apiContext, token);
+
+            return new ResponseEntity<>("<h1>IS IT SUCCESS?? : "+ agreement.getState() +"execute"+ token + ba_token +"</h1>", HttpStatus.OK);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+
+        return new ResponseEntity<>("<h1>NE VALJA </h1>", HttpStatus.BAD_REQUEST);
     }
 
 

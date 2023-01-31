@@ -49,16 +49,16 @@ public class PaymentRequestController {
     @GetMapping("/subsuccess")
     public ResponseEntity<?> successs(@RequestParam String token, @RequestParam String ba_token){
         System.out.println(" ____________________________PARAMS ZA EXECUTE SUBSKRIPCIJE");
-        return paymentRequestService.executePayment(token, ba_token);
+        return paymentRequestService.executeAgreement(token, ba_token);
     }
 
-    @PostMapping("/success") // TODO predlog za body, da se prepakuje na frontu
-    public ResponseEntity<?> success(@RequestBody PaypalPaymentResponseDto dto) {
-        System.out.println(" _______________________________________________ BODY");
-        System.out.print(dto.getPaymentId());
-        System.out.print(dto.getPayerID());
-        System.out.print(dto.getToken());
-        return new ResponseEntity<>("<h1>BODY</h1>", HttpStatus.OK);
-    }
+//    @PostMapping("/success") // TODO predlog za body, da se prepakuje na frontu
+//    public ResponseEntity<?> success(@RequestBody PaypalPaymentResponseDto dto) {
+//        System.out.println(" _______________________________________________ BODY");
+//        System.out.print(dto.getPaymentId());
+//        System.out.print(dto.getPayerID());
+//        System.out.print(dto.getToken());
+//        return new ResponseEntity<>("<h1>BODY</h1>", HttpStatus.OK);
+//    }
 
 }
