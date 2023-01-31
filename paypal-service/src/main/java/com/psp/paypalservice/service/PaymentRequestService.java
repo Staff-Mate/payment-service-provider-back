@@ -2,16 +2,11 @@ package com.psp.paypalservice.service;
 
 import com.paypal.api.payments.*;
 import com.paypal.base.rest.APIContext;
-import com.paypal.base.rest.OAuthTokenCredential;
 import com.paypal.base.rest.PayPalRESTException;
 import com.psp.paypalservice.dto.ServicePaymentDto;
 import com.psp.paypalservice.repository.PaymentRequestRepository;
-import com.psp.paypalservice.util.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Scope;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -131,7 +126,7 @@ public class PaymentRequestService {
 //        PAYMENT RESPONSE SACUVATI?
     }
 
-    public ResponseEntity<?> createSubscription(ServicePaymentDto servicePaymentDto) {
+    public ResponseEntity<?> createSubscription(ServicePaymentDto servicePaymentDto) throws PayPalRESTException {
         // Merchant preference
         MerchantPreferences merchantPreferences = new MerchantPreferences();
         merchantPreferences.setReturnUrl(servicePaymentDto.getSuccessUrl());
@@ -159,23 +154,31 @@ public class PaymentRequestService {
         plan.setName(servicePaymentDto.getBillingCycle() + "LY  PLAN");
         plan.setDescription("Subscription plan");
 
-        try{
-            apiContext = new APIContext(servicePaymentDto.getCredentialsId(),
-                    servicePaymentDto.getCredentialsSecret(),"sandbox");
-            plan = plan.create(apiContext);
-            //log
-            // //SAD JE CREATED
-            System.out.println("USPEH");
+        apiContext = new APIContext(servicePaymentDto.getCredentialsId(),
+                servicePaymentDto.getCredentialsSecret(),"sandbox");
+        plan = plan.create(apiContext);
+        System.out.println("USPEH");
 
-            return  new ResponseEntity<String>("<h1>uspeh</h1>", HttpStatus.OK);
-        }catch(Exception e) {
-            e.printStackTrace();
-            System.out.println("NO");
-            return new ResponseEntity<String>("", HttpStatus.BAD_REQUEST);
-        }
+        // activate plan
+        Map<String, String> changes = new HashMap<>();
+        changes.put("state", "ACTIVE");
+
+        Patch patch = new Patch();
+        patch.setValue(changes);
+        patch.setOp("replace");
+        patch.setPath("/");
+
+        List<Patch> patches = new ArrayList<>();
+        patches.add(patch);
+
+        plan.update(apiContext, patches);
+
+        System.out.println("---------------------AKT TI VACIJA");
+        System.out.println(plan.getState());
 
         //create agreement
 
+        return  new ResponseEntity<>("<h1>uspeh</h1>", HttpStatus.OK);
         //return redirectUrl
 
     }

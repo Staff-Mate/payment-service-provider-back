@@ -1,5 +1,6 @@
 package com.psp.paypalservice.controller;
 
+import com.paypal.base.rest.PayPalRESTException;
 import com.psp.paypalservice.dto.PaypalPaymentResponseDto;
 import com.psp.paypalservice.dto.ServicePaymentDto;
 import com.psp.paypalservice.model.PayPalPaymentResponse;
@@ -25,7 +26,7 @@ public class PaymentRequestController {
     }
 
     @PostMapping("/new-payment")
-    public ResponseEntity<?> createPaymentRequest(@RequestBody ServicePaymentDto servicePaymentDto) {
+    public ResponseEntity<?> createPaymentRequest(@RequestBody ServicePaymentDto servicePaymentDto) throws PayPalRESTException {
         log.debug("POST request received - /payment-requests/new-payment. Credentials id: {}, amount: {}",
                 servicePaymentDto.getCredentialsId(), servicePaymentDto.getAmount());
 
