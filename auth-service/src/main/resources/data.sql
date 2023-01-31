@@ -3,6 +3,48 @@ VALUES (1, 'ROLE_USER');
 INSERT INTO role
 VALUES (3, 'ROLE_ADMIN');
 
+INSERT INTO permission
+VALUES (1, 'read_users');
+INSERT INTO permission
+VALUES (2, 'add_payment_method');
+INSERT INTO permission
+VALUES (3, 'update_payment_method');
+INSERT INTO permission
+VALUES (4, 'remove_payment_method');
+INSERT INTO permission
+VALUES (5, 'change_password');
+INSERT INTO permission
+VALUES (6, 'read_transactions');
+INSERT INTO permission
+VALUES (7, 'enable_payment_method');
+INSERT INTO permission
+VALUES (8, 'disable_payment_method');
+INSERT INTO permission
+VALUES (9, 'update_profile');
+
+INSERT INTO role_permissions (role_id, permissions_id)
+VALUES (3, 1);
+INSERT INTO role_permissions (role_id, permissions_id)
+VALUES (3, 2);
+INSERT INTO role_permissions (role_id, permissions_id)
+VALUES (3, 3);
+INSERT INTO role_permissions (role_id, permissions_id)
+VALUES (3, 4);
+INSERT INTO role_permissions (role_id, permissions_id)
+VALUES (3, 5);
+INSERT INTO role_permissions (role_id, permissions_id)
+VALUES (3, 9);
+INSERT INTO role_permissions (role_id, permissions_id)
+VALUES (1, 5);
+INSERT INTO role_permissions (role_id, permissions_id)
+VALUES (1, 6);
+INSERT INTO role_permissions (role_id, permissions_id)
+VALUES (1, 7);
+INSERT INTO role_permissions (role_id, permissions_id)
+VALUES (1, 8);
+INSERT INTO role_permissions (role_id, permissions_id)
+VALUES (1, 9);
+
 INSERT INTO bank (id, name, bank_url)
 VALUES ('3890539b-06cd-4be1-9ab8-b2e9516b3b5a', 'UniCredit Bank', 'http://localhost:8080');
 
