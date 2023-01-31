@@ -1,6 +1,7 @@
 package com.psp.paypalservice.service;
 
 import com.paypal.api.payments.*;
+import com.paypal.api.payments.Currency;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
 import com.psp.paypalservice.dto.ServicePaymentDto;
@@ -12,10 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -127,9 +126,59 @@ public class PaymentRequestService {
     }
 
     public ResponseEntity<?> createSubscription(ServicePaymentDto servicePaymentDto) throws PayPalRESTException {
+       // Create plan
+        Plan plan = createPlan(servicePaymentDto);
+
+        // Create Agreement
+        Agreement agreement = createAgreement(servicePaymentDto, plan.getId());
+        if(agreement == null) {
+            return new ResponseEntity<String>("", HttpStatus.BAD_REQUEST);
+        }
+        for(Links link : agreement.getLinks()){
+            if(link.getRel().equals("approval_url")){
+                return new ResponseEntity<String>(link.getHref(), HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<String>("", HttpStatus.BAD_REQUEST);
+    }
+
+//    http://localhost:9200/payment-requests/success?token=EC-4S491563R4469123A&ba_token=BA-43Y92145GD2251927
+
+    private Agreement createAgreement(ServicePaymentDto servicePaymentDto, String planId) {
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.MINUTE, 5);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+        Payer payer = new Payer();
+        payer.setPaymentMethod("paypal");
+        Plan plan = new Plan();
+        plan.setId(planId);
+
+        Agreement agreement = new Agreement();
+        agreement.setStartDate(sdf.format(calendar.getTime()));
+        agreement.setPlan(plan);
+        agreement.setPayer(payer);
+        agreement.setName("Billing agreement");
+        agreement.setDescription("Agreement for subscription");
+
+        try{
+            agreement = agreement.create(apiContext);
+            //save
+            //log
+            return agreement;
+        }catch(Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private Plan createPlan(ServicePaymentDto servicePaymentDto) throws PayPalRESTException {
         // Merchant preference
         MerchantPreferences merchantPreferences = new MerchantPreferences();
-        merchantPreferences.setReturnUrl(servicePaymentDto.getSuccessUrl());
+        merchantPreferences.setReturnUrl(servicePaymentDto.getSuccessUrl());    //TREBA DA IMA execute putanju, ili success
         merchantPreferences.setCancelUrl(servicePaymentDto.getFailedUrl());
         merchantPreferences.setAutoBillAmount("YES");
 
@@ -154,9 +203,14 @@ public class PaymentRequestService {
         plan.setName(servicePaymentDto.getBillingCycle() + "LY  PLAN");
         plan.setDescription("Subscription plan");
 
-        apiContext = new APIContext(servicePaymentDto.getCredentialsId(),
-                servicePaymentDto.getCredentialsSecret(),"sandbox");
-        plan = plan.create(apiContext);
+        try{
+            apiContext = new APIContext(servicePaymentDto.getCredentialsId(),
+                    servicePaymentDto.getCredentialsSecret(),"sandbox");
+            plan = plan.create(apiContext);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         System.out.println("USPEH");
 
         // activate plan
@@ -171,16 +225,21 @@ public class PaymentRequestService {
         List<Patch> patches = new ArrayList<>();
         patches.add(patch);
 
-        plan.update(apiContext, patches);
+        try{
+            plan.update(apiContext, patches);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         System.out.println("---------------------AKT TI VACIJA");
         System.out.println(plan.getState());
 
-        //create agreement
+        return plan;
+    }
 
-        return  new ResponseEntity<>("<h1>uspeh</h1>", HttpStatus.OK);
-        //return redirectUrl
+    public ResponseEntity<?> executePayment(String token, String ba_token) {
 
+        return new ResponseEntity<>("<h1>execute"+ token + ba_token +"</h1>", HttpStatus.OK);
     }
 
 

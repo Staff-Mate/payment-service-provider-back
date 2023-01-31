@@ -45,6 +45,12 @@ public class PaymentRequestController {
         //Sve je tu
         return paymentRequestService.executePayment(paymentId, token, PayerID);
     }
+    //    http://localhost:9200/payment-requests/success?token=EC-4S491563R4469123A&ba_token=BA-43Y92145GD2251927
+    @GetMapping("/subsuccess")
+    public ResponseEntity<?> successs(@RequestParam String token, @RequestParam String ba_token){
+        System.out.println(" ____________________________PARAMS ZA EXECUTE SUBSKRIPCIJE");
+        return paymentRequestService.executePayment(token, ba_token);
+    }
 
     @PostMapping("/success") // TODO predlog za body, da se prepakuje na frontu
     public ResponseEntity<?> success(@RequestBody PaypalPaymentResponseDto dto) {
