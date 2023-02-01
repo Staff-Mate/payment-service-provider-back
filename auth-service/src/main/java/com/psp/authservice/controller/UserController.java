@@ -38,9 +38,9 @@ public class UserController {
         return userService.getAllPaymentMethodsForCompany(principal.getName());
     }
 
-    @GetMapping("/payment-method/{apiKey}")
-    public ResponseEntity<?> getAllPaymentMethodsForApiKey(@PathVariable String apiKey) {
-        return userService.getAllPaymentMethodsForApiKey(apiKey);
+    @GetMapping("/payment-method/{paymentAttemptId}")
+    public ResponseEntity<?> getAllPaymentMethodsByPaymentAttemptId(@PathVariable UUID paymentAttemptId) {
+        return userService.getAllPaymentMethodsByPaymentAttemptId(paymentAttemptId);
     }
 
     @PreAuthorize("hasAuthority('enable_payment_method')")

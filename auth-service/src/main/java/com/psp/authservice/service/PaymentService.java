@@ -3,6 +3,7 @@ package com.psp.authservice.service;
 import com.psp.authservice.dto.NewPaymentDto;
 import com.psp.authservice.dto.ServicePaymentDto;
 import com.psp.authservice.model.EnabledPaymentMethod;
+import com.psp.authservice.model.PaymentAttempt;
 import com.psp.authservice.model.RegularUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +22,17 @@ public class PaymentService {
     @Autowired
     private UserService userService;
     @Autowired
+    private PaymentAttemptService paymentAttemptService;
+    @Autowired
     private RestTemplate restTemplate;
 
     public ResponseEntity<?> createPayment(NewPaymentDto newPaymentDto) {
-        RegularUser user = userService.findUserByApiKey(newPaymentDto.getApiKey());
+        PaymentAttempt paymentAttempt = paymentAttemptService.getPaymentAttempt(newPaymentDto.getPaymentAttemptId());
+        RegularUser user = userService.findUserByApiKey(paymentAttempt.getApiKey());
         EnabledPaymentMethod enabledPaymentMethod = userService.getPaymentMethodForCompany(user, newPaymentDto.getPaymentMethodId());
         if (enabledPaymentMethod != null) {
             log.debug("Payment process started with {}, for merchant: {}", enabledPaymentMethod.getPaymentMethod().getName(), user.getId());
-            ServicePaymentDto servicePaymentDto = new ServicePaymentDto(enabledPaymentMethod.getUserId(), enabledPaymentMethod.getUserSecret(), newPaymentDto.getAmount(), newPaymentDto.getBillingCycle());
+            ServicePaymentDto servicePaymentDto = new ServicePaymentDto(enabledPaymentMethod.getUserId(), enabledPaymentMethod.getUserSecret(), paymentAttempt.getAmount(), paymentAttempt.getBillingCycle());
             servicePaymentDto.setTimestamp(new Timestamp(System.currentTimeMillis()));
             servicePaymentDto.setMerchantBankUrl(user.getBank().getBankUrl());
             servicePaymentDto.setErrorUrl(user.getErrorUrl());

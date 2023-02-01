@@ -4,15 +4,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.UUID;
-
 @Getter
 @Setter
 @NoArgsConstructor
-public class NewPaymentDto {
+public class PaymentAttemptDto {
 
-    private UUID paymentAttemptId;
+    private String id;
 
-    private UUID paymentMethodId;
+    private String apiKey;
 
+    private Double amount;
+
+    private String billingCycle;
 }

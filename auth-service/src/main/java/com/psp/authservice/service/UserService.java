@@ -1,10 +1,7 @@
 package com.psp.authservice.service;
 
 import com.psp.authservice.dto.*;
-import com.psp.authservice.model.EnabledPaymentMethod;
-import com.psp.authservice.model.PaymentMethod;
-import com.psp.authservice.model.RegularUser;
-import com.psp.authservice.model.User;
+import com.psp.authservice.model.*;
 import com.psp.authservice.repository.*;
 import com.psp.authservice.repository.specification.UserSpecification;
 import com.psp.authservice.security.util.TokenUtils;
@@ -43,6 +40,8 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private EnabledPaymentMethodService enabledPaymentMethodService;
+    @Autowired
+    private PaymentAttemptService paymentAttemptService;
 
     @Autowired
     private PaymentMethodService paymentMethodService;
@@ -84,8 +83,9 @@ public class UserService implements UserDetailsService {
     }
 
 
-    public ResponseEntity<?> getAllPaymentMethodsForApiKey(String apiKey) {
-        RegularUser user = regularUserRepository.findByApiKey(apiKey);
+    public ResponseEntity<?> getAllPaymentMethodsByPaymentAttemptId(UUID paymentAttemptId) {
+        PaymentAttempt paymentAttempt = paymentAttemptService.getPaymentAttempt(paymentAttemptId);
+        RegularUser user = regularUserRepository.findByApiKey(paymentAttempt.getApiKey());
         List<EnabledPaymentMethodDto> userPaymentMethods = new ArrayList<>();
         for (EnabledPaymentMethod enabledPaymentMethod : user.getEnabledPaymentMethods()) {
             userPaymentMethods.add(modelMapper.map(enabledPaymentMethod, EnabledPaymentMethodDto.class));
