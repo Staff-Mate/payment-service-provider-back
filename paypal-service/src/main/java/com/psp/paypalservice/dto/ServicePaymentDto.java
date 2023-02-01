@@ -10,13 +10,15 @@ import java.sql.Timestamp;
 @Setter
 @NoArgsConstructor
 public class ServicePaymentDto {
+    private String id;
+
     private String credentialsId;
 
     private String credentialsSecret;
 
     private Double amount;
 
-    private String billingCycle;
+    private String billingCycle; //ONE_TIME, MONTH, YEAR
 
     private Timestamp timestamp;
 
@@ -26,4 +28,3 @@ public class ServicePaymentDto {
 
     private String errorUrl;
 }
-//private String billing;

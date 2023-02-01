@@ -5,9 +5,11 @@ import com.paypal.api.payments.Currency;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
 import com.psp.paypalservice.dto.ServicePaymentDto;
-import com.psp.paypalservice.repository.PaymentRequestRepository;
+import com.psp.paypalservice.repository.PaypalPaymentRepository;
+import com.psp.paypalservice.repository.PaypalSubscriptionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -21,30 +23,29 @@ import java.util.*;
 public class PaymentRequestService {
 
     @Autowired
-    private PaymentRequestRepository paymentRequestRepository;
+    private PaypalSubscriptionRepository paypalSubscriptionRepository;
+
+    @Autowired
+    private PaypalPaymentRepository paypalPaymentRepository;
 
     @Autowired
     private RestTemplate restTemplate;
 
     private APIContext apiContext;
 
-    // 1 CREATE ORDER
+    @Value("${service.front.url}")
+    private String frontUrl;
 
-    // 2 WAIT FOR CUSTOMER TO APPROVE ORDER
-
-    // 3 kad je prihvaceno, CAPTURE the payment, log details
-
-    // TREBA kao 2 endpointa na beku- orders - one to create orders i oder capture- one to capture payments
+    @Value("${paypal.mode}")
+    private String mode;
 
     public ResponseEntity<?> createPayment(ServicePaymentDto servicePaymentDto) {
 
         Payer payer = new Payer();
         payer.setPaymentMethod("paypal");
-
         RedirectUrls urls = new RedirectUrls();
         urls.setCancelUrl(servicePaymentDto.getFailedUrl()); // ili error url?
-        urls.setReturnUrl(servicePaymentDto.getSuccessUrl());
-//        urls.setReturnUrl("http://localhost:9200/payment-requests/success")
+        urls.setReturnUrl("http://localhost:9200/payment-requests/success");
 
         Amount amount = new Amount();
         amount.setCurrency("USD");
@@ -62,7 +63,7 @@ public class PaymentRequestService {
         payment.setTransactions(transactions);
 
         apiContext = new APIContext(servicePaymentDto.getCredentialsId(),
-                servicePaymentDto.getCredentialsSecret(),"sandbox");
+                servicePaymentDto.getCredentialsSecret(),mode);
 
         try{
             payment = payment.create(apiContext);
@@ -84,6 +85,9 @@ public class PaymentRequestService {
         return new ResponseEntity<String>(servicePaymentDto.getFailedUrl(), HttpStatus.BAD_REQUEST);
     }
 
+    //https://example.com/return?paymentId=PAYID-MPMOTVA82587878KX934172W&token=EC-64689213Y9451631J&PayerID=8QV4E6BDM47D6
+//    DOBILA SAM  MOJ SUCCESS URL SA PARAMETRIMA PAYMENT ID i TOKEN i PAYERID
+
     public ResponseEntity<?> executePayment(String paymentId, String token, String payerID) {
 
         Payment payment = new Payment();
@@ -98,14 +102,16 @@ public class PaymentRequestService {
             if(payment.getState().equals("approved")){
                 savePayment(payment);
                 System.out.println("___________USPEHHHHHHHHHHHHHH");
+                //VAdimo payment iz baze i saljemo success url
                 return  new ResponseEntity<String>("<h1>uspeh</h1>", HttpStatus.OK);
             }
         } catch(PayPalRESTException e) {
             //log
             e.printStackTrace();
+            //VAdimo payment iz baze i saljemo error url
             return new ResponseEntity<String>("", HttpStatus.BAD_REQUEST);
         }
-
+        //VAdimo payment iz baze i saljemo fail url
         return null;
 
     }
@@ -133,37 +139,6 @@ public class PaymentRequestService {
     }
 
 //    http://localhost:9200/payment-requests/success?token=EC-4S491563R4469123A&ba_token=BA-43Y92145GD2251927
-
-    private Agreement createAgreement(ServicePaymentDto servicePaymentDto, String planId) {
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        calendar.add(Calendar.MINUTE, 1);
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-
-        Payer payer = new Payer();
-        payer.setPaymentMethod("paypal");
-        Plan plan = new Plan(); //!!!!!!!!!!!!!!!!!!!
-        plan.setId(planId);
-
-        Agreement agreement = new Agreement();
-        agreement.setStartDate(sdf.format(calendar.getTime()));
-        agreement.setPlan(plan);
-        agreement.setPayer(payer);
-        agreement.setName("Billing agreement");
-        agreement.setDescription("Agreement for subscription");
-
-        try{
-            agreement = agreement.create(apiContext);
-            //save
-            //log
-            return agreement;
-        }catch(Exception e){
-            e.printStackTrace();
-            return null;
-        }
-    }
 
     private Plan createPlan(ServicePaymentDto servicePaymentDto) throws PayPalRESTException {
         // Merchant preference
@@ -230,6 +205,37 @@ public class PaymentRequestService {
         return plan;
     }
 
+    private Agreement createAgreement(ServicePaymentDto servicePaymentDto, String planId) {
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.MINUTE, 1);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+        Payer payer = new Payer();
+        payer.setPaymentMethod("paypal");
+        Plan plan = new Plan(); //!!!!!!!!!!!!!!!!!!!
+        plan.setId(planId);
+
+        Agreement agreement = new Agreement();
+        agreement.setStartDate(sdf.format(calendar.getTime()));
+        agreement.setPlan(plan);
+        agreement.setPayer(payer);
+        agreement.setName("Billing agreement");
+        agreement.setDescription("Agreement for subscription");
+
+        try{
+            agreement = agreement.create(apiContext);
+            //save
+            //log
+            return agreement;
+        }catch(Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public ResponseEntity<?> executeAgreement(String token, String ba_token) {
 
         Agreement agreement = new Agreement();
@@ -245,8 +251,10 @@ public class PaymentRequestService {
         return new ResponseEntity<>("<h1>NE VALJA </h1>", HttpStatus.BAD_REQUEST);
     }
 
+    private void saveSubscription(Agreement agreement, Plan plan) {
+        System.out.println("Henlo\n\n");
+//        PAYMENT RESPONSE SACUVATI?
+    }
 
-    //https://example.com/return?paymentId=PAYID-MPMOTVA82587878KX934172W&token=EC-64689213Y9451631J&PayerID=8QV4E6BDM47D6
-//    DOBILA SAM  MOJ SUCCESS URL SA PARAMETRIMA PAYMENT ID i TOKEN i PAYERID
 
 }
