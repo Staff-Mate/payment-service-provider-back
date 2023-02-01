@@ -20,7 +20,7 @@ public class PayPalPayment {
     @Column(name="id")
     private Integer id;
 
-    @Column(name="paymentId")
+    @Column(name="paymentId", unique = true)
     private String paymentId;
 
     @Column(name="merchantId")
@@ -45,7 +45,7 @@ public class PayPalPayment {
     private String amount;
 
     @Column(name="timestamp")
-    private Long timestamp;
+    private String timestamp;
 
     @Column(name="type")
     private String type; //onetime ili setupess

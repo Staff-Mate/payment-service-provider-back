@@ -9,4 +9,6 @@ import java.util.UUID;
 @Repository
 public interface PaypalPaymentRepository extends JpaRepository<PayPalPayment, UUID> {
 
+    PayPalPayment findByPaymentId(String paymentId);
+
 }

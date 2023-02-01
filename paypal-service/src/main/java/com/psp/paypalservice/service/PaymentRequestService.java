@@ -5,8 +5,10 @@ import com.paypal.api.payments.Currency;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
 import com.psp.paypalservice.dto.ServicePaymentDto;
+import com.psp.paypalservice.model.PayPalPayment;
 import com.psp.paypalservice.repository.PaypalPaymentRepository;
 import com.psp.paypalservice.repository.PaypalSubscriptionRepository;
+import com.psp.paypalservice.util.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,15 +28,12 @@ public class PaymentRequestService {
     private PaypalSubscriptionRepository paypalSubscriptionRepository;
 
     @Autowired
-    private PaypalPaymentRepository paypalPaymentRepository;
+    private PaypalPaymentService paypalPaymentService;
 
     @Autowired
     private RestTemplate restTemplate;
 
     private APIContext apiContext;
-
-    @Value("${service.front.url}")
-    private String frontUrl;
 
     @Value("${paypal.mode}")
     private String mode;
@@ -44,13 +43,12 @@ public class PaymentRequestService {
         Payer payer = new Payer();
         payer.setPaymentMethod("paypal");
         RedirectUrls urls = new RedirectUrls();
-        urls.setCancelUrl(servicePaymentDto.getFailedUrl()); // ili error url?
+        urls.setCancelUrl(servicePaymentDto.getFailedUrl());
         urls.setReturnUrl("http://localhost:9200/payment-requests/success");
 
         Amount amount = new Amount();
         amount.setCurrency("USD");
         amount.setTotal(Double.toString(servicePaymentDto.getAmount()));
-
         Transaction transaction = new Transaction();
         transaction.setAmount(amount);
         List<Transaction> transactions = new ArrayList<>();
@@ -61,64 +59,44 @@ public class PaymentRequestService {
         payment.setPayer(payer);
         payment.setRedirectUrls(urls);
         payment.setTransactions(transactions);
-
         apiContext = new APIContext(servicePaymentDto.getCredentialsId(),
                 servicePaymentDto.getCredentialsSecret(),mode);
 
         try{
             payment = payment.create(apiContext);
-
             if(payment.getState().equals("created")) {
-                //snimiti
+                paypalPaymentService.savePayment(payment, servicePaymentDto, servicePaymentDto.getBillingCycle());
                 for (Links link : payment.getLinks()) {
                     if (link.getRel().equals("approval_url")) {
                         return new ResponseEntity<String>(link.getHref(), HttpStatus.OK);
                     }
                 }
             }
+            return new ResponseEntity<String>(servicePaymentDto.getFailedUrl(), HttpStatus.OK);
         } catch(PayPalRESTException e) {
-            //log
             e.printStackTrace();
             return new ResponseEntity<String>(servicePaymentDto.getErrorUrl(), HttpStatus.BAD_REQUEST);
         }
-
-        return new ResponseEntity<String>(servicePaymentDto.getFailedUrl(), HttpStatus.BAD_REQUEST);
     }
 
-    //https://example.com/return?paymentId=PAYID-MPMOTVA82587878KX934172W&token=EC-64689213Y9451631J&PayerID=8QV4E6BDM47D6
-//    DOBILA SAM  MOJ SUCCESS URL SA PARAMETRIMA PAYMENT ID i TOKEN i PAYERID
-
-    public ResponseEntity<?> executePayment(String paymentId, String token, String payerID) {
+    public String executePayment(String paymentId, String token, String payerID) {
 
         Payment payment = new Payment();
         payment.setId(paymentId);
-
         PaymentExecution paymentExecution = new PaymentExecution();
         paymentExecution.setPayerId(payerID);
+        String errorUrl = paypalPaymentService.getById(paymentId).getErrorUrl();
         try{
-
             payment = payment.execute(apiContext, paymentExecution);
-
+            PayPalPayment payPalPayment = paypalPaymentService.updatePayment(payment);
             if(payment.getState().equals("approved")){
-                savePayment(payment);
-                System.out.println("___________USPEHHHHHHHHHHHHHH");
-                //VAdimo payment iz baze i saljemo success url
-                return  new ResponseEntity<String>("<h1>uspeh</h1>", HttpStatus.OK);
+                return  payPalPayment.getSuccessUrl();
             }
+            return payPalPayment.getFailedUrl();
         } catch(PayPalRESTException e) {
-            //log
             e.printStackTrace();
-            //VAdimo payment iz baze i saljemo error url
-            return new ResponseEntity<String>("", HttpStatus.BAD_REQUEST);
+            return errorUrl;
         }
-        //VAdimo payment iz baze i saljemo fail url
-        return null;
-
-    }
-
-    private void savePayment(Payment payment) {
-        System.out.println("Henlo\n\n");
-//        PAYMENT RESPONSE SACUVATI?
     }
 
     public ResponseEntity<?> createSubscription(ServicePaymentDto servicePaymentDto) throws PayPalRESTException {

@@ -3,6 +3,7 @@ package com.psp.paypalservice.controller;
 import com.paypal.base.rest.PayPalRESTException;
 import com.psp.paypalservice.dto.ServicePaymentDto;
 import com.psp.paypalservice.service.PaymentRequestService;
+import com.psp.paypalservice.util.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,8 +30,10 @@ public class PaymentRequestController {
     }
 
     @GetMapping("/success")
-    public ResponseEntity<?> successPayment(@RequestParam String paymentId, @RequestParam String token, @RequestParam String PayerID) {
-        return paymentRequestService.executePayment(paymentId, token, PayerID);
+    public String successPayment(@RequestParam String paymentId, @RequestParam String token, @RequestParam String PayerID) {
+        String resultingUrl = paymentRequestService.executePayment(paymentId, token, PayerID);
+        Utils.browse(resultingUrl);
+        return resultingUrl;
     }
 
     @GetMapping("/subsuccess")
