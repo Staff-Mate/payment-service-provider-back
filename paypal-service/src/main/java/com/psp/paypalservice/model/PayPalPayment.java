@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.sql.Timestamp;
 
 @Entity
 @Data
@@ -45,7 +46,7 @@ public class PayPalPayment {
     private String amount;
 
     @Column(name="timestamp")
-    private String timestamp;
+    private Timestamp timestamp;
 
     @Column(name="type")
     private String type; //onetime ili setup

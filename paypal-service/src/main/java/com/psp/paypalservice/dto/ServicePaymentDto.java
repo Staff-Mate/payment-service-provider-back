@@ -10,7 +10,6 @@ import java.sql.Timestamp;
 @Setter
 @NoArgsConstructor
 public class ServicePaymentDto {
-    private String id;
 
     private String credentialsId;
 

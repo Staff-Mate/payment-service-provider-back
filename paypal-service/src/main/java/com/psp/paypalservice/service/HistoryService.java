@@ -10,8 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import java.sql.Timestamp;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -34,16 +32,8 @@ public class HistoryService {
                 historyFilterDto.getStatus(), payments.getTotalElements());
 
         Page<HistoryResponseDto> responsesDto = payments.map(payment ->
-        {
-            try {
-                return new HistoryResponseDto(historyFilterDto.getServiceName(), payment.getState(),
-                        Double.parseDouble(payment.getAmount()), new Timestamp(sdf.parse(payment.getTimestamp()).getTime()));
-            } catch (ParseException e) {
-                System.out.println("_____________________");
-                e.printStackTrace();
-            }
-            return null;
-        });
+                new HistoryResponseDto(historyFilterDto.getServiceName(), payment.getState(),
+                    Double.parseDouble(payment.getAmount()), payment.getTimestamp()));
 
         return responsesDto.getContent();
     }

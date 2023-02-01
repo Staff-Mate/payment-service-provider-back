@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -20,7 +22,7 @@ public class PayPalPaymentService {
     @Autowired
     private PaypalPaymentRepository paypalPaymentRepository;
 
-    public void savePayment(Payment payment, ServicePaymentDto servicePaymentDto, String type) {
+    public void savePayment(Payment payment, ServicePaymentDto servicePaymentDto, String type) throws ParseException {
         PayPalPayment copy = new PayPalPayment();
         copy.setPaymentId(payment.getId());
         copy.setMerchantId(servicePaymentDto.getCredentialsId());
@@ -29,7 +31,11 @@ public class PayPalPaymentService {
         copy.setFailedUrl(servicePaymentDto.getFailedUrl());
         copy.setState(payment.getState());
         copy.setAmount(payment.getTransactions().get(0).getAmount().getTotal());
-        copy.setTimestamp(payment.getCreateTime());
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        copy.setTimestamp(new Timestamp(sdf.parse(payment.getCreateTime()).getTime())); //to timestamp
+
+
         copy.setType(type);
         paypalPaymentRepository.save(copy);
 
@@ -41,11 +47,12 @@ public class PayPalPaymentService {
         return paypalPaymentRepository.findByPaymentId(id);
     }
 
-    public PayPalPayment updatePayment(Payment payment) {
+    public PayPalPayment updatePayment(Payment payment) throws ParseException {
         PayPalPayment saved = paypalPaymentRepository.findByPaymentId(payment.getId());
         saved.setState(payment.getState());
         saved.setPayerId(payment.getPayer().getPayerInfo().getPayerId());
-        saved.setTimestamp(payment.getUpdateTime());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        saved.setTimestamp(new Timestamp(sdf.parse(payment.getUpdateTime()).getTime()));
 
         PayPalPayment updated = paypalPaymentRepository.save(saved);
         log.debug("PayPal payment with id: {} updated. Payer id: {}, New state: {}",
@@ -60,8 +67,8 @@ public class PayPalPaymentService {
         payment.setState("approved");
         payment.setMerchantId(sub.getMerchantId());
         payment.setType("SETUP_FEE");
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        payment.setTimestamp(sdf.format(new Date()));
+
+        payment.setTimestamp(new Timestamp((new Date()).getTime()));
 
         paypalPaymentRepository.save(payment);
 

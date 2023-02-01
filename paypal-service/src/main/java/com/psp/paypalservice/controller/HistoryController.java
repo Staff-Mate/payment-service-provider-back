@@ -27,6 +27,7 @@ public class HistoryController {
     public ResponseEntity<?> getAllTransactionForMerchant(@RequestBody HistoryFilterDto historyFilterDto){
         log.debug("GET request received - /history/. Credentials id: {}, status: {}",
                 historyFilterDto.getCredentialsId(), historyFilterDto.getStatus());
+
         List<HistoryResponseDto> responses = historyService.getFilteredHistory(historyFilterDto);
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }

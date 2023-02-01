@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -75,7 +76,7 @@ public class PaymentRequestService {
             log.warn("Payment failed to be created.  Merchant id: {}, Amount: {}",
                     servicePaymentDto.getCredentialsId(), payment.getTransactions().get(0).getAmount().getTotal());
             return new ResponseEntity<>(servicePaymentDto.getFailedUrl(), HttpStatus.OK);
-        } catch(PayPalRESTException e) {
+        } catch(PayPalRESTException | ParseException e) {
             e.printStackTrace();
             log.warn("Payment creation encountered an exception.  Merchant id: {}, Amount: {}",
                     servicePaymentDto.getCredentialsId(), payment.getTransactions().get(0).getAmount().getTotal());
@@ -99,7 +100,7 @@ public class PaymentRequestService {
             }
             log.warn("Payment with id: {} failed to be executed.", payment.getId());
             return saved.getFailedUrl();
-        } catch(PayPalRESTException e) {
+        } catch(PayPalRESTException | ParseException e) {
             log.warn("Payment with id: {} encountered an exception while being executed.", payment.getId());
             e.printStackTrace();
             return saved.getErrorUrl();
