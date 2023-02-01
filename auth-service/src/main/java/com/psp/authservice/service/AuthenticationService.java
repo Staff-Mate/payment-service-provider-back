@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import javax.mail.MessagingException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -84,7 +85,7 @@ public class AuthenticationService {
             log.warn("Already registered email: {} entered in attempted registration.", user.getEmail());
             throw new ResourceConflictException("Email already exists");
         } else {
-            if (isPasswordInvalid(userDto.getPassword())) {
+            if (isPasswordInvalid(userDto.getPassword()) && Objects.equals(userDto.getPassword(), userDto.getConfirmPassword())) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
             user.setPassword(passwordEncoder.encode(userDto.getPassword()));
