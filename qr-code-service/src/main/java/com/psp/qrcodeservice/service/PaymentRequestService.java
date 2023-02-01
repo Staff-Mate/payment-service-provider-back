@@ -58,6 +58,8 @@ public class PaymentRequestService {
         try {
             generateQrCode(Objects.requireNonNull(response.getBody()).substring(response.getBody().length() - 10), servicePaymentDto);
         } catch (IOException | WriterException ex) {
+            log.error("Error while creating QR code for payment request: {}, merchant order id: {}",
+                    paymentRequest.getId(), paymentRequest.getMerchantOrderId());
             return new ResponseEntity<>(response.getBody(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(response.getBody(), HttpStatus.OK);
