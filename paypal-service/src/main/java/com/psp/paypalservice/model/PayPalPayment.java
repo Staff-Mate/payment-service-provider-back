@@ -35,7 +35,7 @@ public class PayPalPayment {
     @Column(name="failedUrl")
     private String failedUrl;
 
-    @Column(name="payerId") //posle dobijamo
+    @Column(name="payerId")
     private String payerId;
 
     @Column(name="state")
@@ -48,5 +48,5 @@ public class PayPalPayment {
     private String timestamp;
 
     @Column(name="type")
-    private String type; //onetime ili setupess
+    private String type; //onetime ili setup
 }

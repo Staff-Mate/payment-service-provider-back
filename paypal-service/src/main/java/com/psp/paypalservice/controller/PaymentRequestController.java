@@ -20,8 +20,8 @@ public class PaymentRequestController {
 
     @PostMapping("/new-payment")
     public ResponseEntity<?> createPaymentRequest(@RequestBody ServicePaymentDto servicePaymentDto) throws PayPalRESTException {
-        log.debug("POST request received - /payment-requests/new-payment. Credentials id: {}, amount: {}",
-                servicePaymentDto.getCredentialsId(), servicePaymentDto.getAmount());
+        log.debug("POST request received - /payment-requests/new-payment. Credentials id: {}, Amount: {}, Billing Cycle: {}",
+                servicePaymentDto.getCredentialsId(), servicePaymentDto.getAmount(), servicePaymentDto.getBillingCycle());
 
         if(servicePaymentDto.getBillingCycle().equals("ONE_TIME")){
             return paymentRequestService.createPayment(servicePaymentDto);
@@ -31,6 +31,7 @@ public class PaymentRequestController {
 
     @GetMapping("/success")
     public String successPayment(@RequestParam String paymentId, @RequestParam String token, @RequestParam String PayerID) {
+        log.debug("GET request received - /payment-requests/success. Payment id: {}", paymentId);
         String resultingUrl = paymentRequestService.executePayment(paymentId, token, PayerID);
         Utils.browse(resultingUrl);
         return resultingUrl;
@@ -38,14 +39,9 @@ public class PaymentRequestController {
 
     @GetMapping("/subsuccess")
     public String successSubscription(@RequestParam String token, @RequestParam String ba_token){
+        log.debug("GET request received - /payment-requests/subsuccess. Agreement token: {}", token);
         String resultingUrl = paymentRequestService.executeAgreement(token, ba_token);
         Utils.browse(resultingUrl);
         return resultingUrl;
     }
-
-    @GetMapping("/")
-    public ResponseEntity<?> test(){
-        return new ResponseEntity<>("Test", HttpStatus.OK );
-    }
-
 }

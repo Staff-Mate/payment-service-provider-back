@@ -32,6 +32,9 @@ public class PayPalPaymentService {
         copy.setTimestamp(payment.getCreateTime());
         copy.setType(type);
         paypalPaymentRepository.save(copy);
+
+        log.debug("PayPal payment with id: {} created. Merchant id: {}, Amount: {}",
+                copy.getPaymentId(),copy.getMerchantId(), copy.getAmount());
     }
 
     public PayPalPayment getById(String id){
@@ -43,7 +46,12 @@ public class PayPalPaymentService {
         saved.setState(payment.getState());
         saved.setPayerId(payment.getPayer().getPayerInfo().getPayerId());
         saved.setTimestamp(payment.getUpdateTime());
-        return paypalPaymentRepository.save(saved);
+
+        PayPalPayment updated = paypalPaymentRepository.save(saved);
+        log.debug("PayPal payment with id: {} updated. Payer id: {}, New state: {}",
+                saved.getPaymentId(),saved.getPayerId(), saved.getState());
+
+        return updated;
     }
 
     public void saveSetupPayment(Agreement agreement, PayPalSubscription sub) {
@@ -52,9 +60,12 @@ public class PayPalPaymentService {
         payment.setState("approved");
         payment.setMerchantId(sub.getMerchantId());
         payment.setType("SETUP_FEE");
-
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         payment.setTimestamp(sdf.format(new Date()));
+
         paypalPaymentRepository.save(payment);
+
+        log.debug("PayPal SETUP_FEE payment created. Merchant id: {}, Amount: {}",
+                payment.getMerchantId(), payment.getAmount());
     }
 }

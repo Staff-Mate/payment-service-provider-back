@@ -42,20 +42,19 @@ public class PayPalSubscription {
     private String agreementName;
 
     @Column(name="agreementState")
-    private String agreementState; //STVOREN, *kad ima linkove i nije null,
-    //AKTIVAN kad se execute, TO PREKO TOKENA STAVIMO
+    private String agreementState;
 
     @Column(name="agreementId")
-    private String agreementId; //KAD SE EXECUTEUJE
+    private String agreementId;
 
     @Column(name="payerId")
     private String payerId;
 
     @Column(name="cycles")
-    private String cycles;  //iz payment definition
+    private String cycles;
 
     @Column(name="billing")
-    private String billing; //iz payment definition
+    private String billing;
 
     @Column(name="setupFee")
     private Double setupFee;

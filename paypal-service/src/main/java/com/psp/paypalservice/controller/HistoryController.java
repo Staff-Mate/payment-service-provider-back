@@ -25,12 +25,16 @@ public class HistoryController {
 
     @GetMapping("/")
     public ResponseEntity<?> getAllTransactionForMerchant(@RequestBody HistoryFilterDto historyFilterDto){
+        log.debug("GET request received - /history/. Credentials id: {}, status: {}",
+                historyFilterDto.getCredentialsId(), historyFilterDto.getStatus());
         List<HistoryResponseDto> responses = historyService.getFilteredHistory(historyFilterDto);
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }
 
     @GetMapping("/active")
     public ResponseEntity<?> getActiveTransactionForMerchant(@RequestBody HistoryFilterDto historyFilterDto){
+        log.debug("GET request received - /history/active. Credentials id: {}, status: {}",
+                historyFilterDto.getCredentialsId(), historyFilterDto.getStatus());
         List<HistoryResponseDto> responses = historyService.getFilteredHistory(historyFilterDto);
         return new ResponseEntity<>(responses, HttpStatus.OK);
     }

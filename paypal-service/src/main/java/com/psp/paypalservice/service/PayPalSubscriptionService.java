@@ -33,8 +33,10 @@ public class PayPalSubscriptionService {
         sub.setAgreementStartDate(agreement.getStartDate());
         sub.setAgreementName(agreement.getName());
         sub.setAgreementState("Created");
-
         paypalSubscriptionRepository.save(sub);
+
+        log.debug("PayPal Subscription with Plan id: {} created. Merchant id: {}, Set up fee: {}, Billing cycle: {}, Aggreement token: {}",
+                sub.getPlanId(), sub.getMerchantId(), sub.getSetupFee(), sub.getBilling(), sub.getAgreementToken());
     }
 
     public PayPalSubscription getByAgreementToken(String token) {
@@ -46,5 +48,8 @@ public class PayPalSubscriptionService {
         saved.setAgreementState(agreement.getState());
         saved.setAgreementId(agreement.getId());
         paypalSubscriptionRepository.save(saved);
+
+        log.debug("PayPal Subscription with Agreement token: {} updated. New state: {}, Merchant id: {}",
+                saved.getAgreementToken(), saved.getAgreementState(), saved.getMerchantId());
     }
 }
