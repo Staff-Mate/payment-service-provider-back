@@ -52,7 +52,7 @@ public class PayPalSubscription {
     private String payerId;
 
     @Column(name="cycles")
-    private Integer cycles;  //iz payment definition
+    private String cycles;  //iz payment definition
 
     @Column(name="billing")
     private String billing; //iz payment definition

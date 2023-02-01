@@ -6,8 +6,7 @@ import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
 import com.psp.paypalservice.dto.ServicePaymentDto;
 import com.psp.paypalservice.model.PayPalPayment;
-import com.psp.paypalservice.repository.PaypalPaymentRepository;
-import com.psp.paypalservice.repository.PaypalSubscriptionRepository;
+import com.psp.paypalservice.model.PayPalSubscription;
 import com.psp.paypalservice.util.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +24,10 @@ import java.util.*;
 public class PaymentRequestService {
 
     @Autowired
-    private PaypalSubscriptionRepository paypalSubscriptionRepository;
+    private PayPalSubscriptionService payPalSubscriptionService;
 
     @Autowired
-    private PaypalPaymentService paypalPaymentService;
+    private PayPalPaymentService paypalPaymentService;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -68,14 +67,14 @@ public class PaymentRequestService {
                 paypalPaymentService.savePayment(payment, servicePaymentDto, servicePaymentDto.getBillingCycle());
                 for (Links link : payment.getLinks()) {
                     if (link.getRel().equals("approval_url")) {
-                        return new ResponseEntity<String>(link.getHref(), HttpStatus.OK);
+                        return new ResponseEntity<>(link.getHref(), HttpStatus.OK);
                     }
                 }
             }
-            return new ResponseEntity<String>(servicePaymentDto.getFailedUrl(), HttpStatus.OK);
+            return new ResponseEntity<>(servicePaymentDto.getFailedUrl(), HttpStatus.OK);
         } catch(PayPalRESTException e) {
             e.printStackTrace();
-            return new ResponseEntity<String>(servicePaymentDto.getErrorUrl(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(servicePaymentDto.getErrorUrl(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -85,48 +84,45 @@ public class PaymentRequestService {
         payment.setId(paymentId);
         PaymentExecution paymentExecution = new PaymentExecution();
         paymentExecution.setPayerId(payerID);
-        String errorUrl = paypalPaymentService.getById(paymentId).getErrorUrl();
+        PayPalPayment saved = paypalPaymentService.getById(paymentId);
         try{
             payment = payment.execute(apiContext, paymentExecution);
-            PayPalPayment payPalPayment = paypalPaymentService.updatePayment(payment);
+            paypalPaymentService.updatePayment(payment);
             if(payment.getState().equals("approved")){
-                return  payPalPayment.getSuccessUrl();
+                return  saved.getSuccessUrl();
             }
-            return payPalPayment.getFailedUrl();
+            return saved.getFailedUrl();
         } catch(PayPalRESTException e) {
             e.printStackTrace();
-            return errorUrl;
+            return saved.getErrorUrl();
         }
     }
 
     public ResponseEntity<?> createSubscription(ServicePaymentDto servicePaymentDto) throws PayPalRESTException {
-       // Create plan
-        Plan plan = createPlan(servicePaymentDto);
 
-        // Create Agreement
+        Plan plan = createPlan(servicePaymentDto);
         Agreement agreement = createAgreement(servicePaymentDto, plan.getId());
+
         if(agreement == null) {
-            return new ResponseEntity<String>("", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(servicePaymentDto.getErrorUrl(), HttpStatus.BAD_REQUEST);
         }
+        payPalSubscriptionService.saveSubscription(plan, agreement, servicePaymentDto);
         for(Links link : agreement.getLinks()){
             if(link.getRel().equals("approval_url")){
-                return new ResponseEntity<String>(link.getHref(), HttpStatus.OK);
+                return new ResponseEntity<>(link.getHref(), HttpStatus.OK);
             }
         }
-        return new ResponseEntity<String>("", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(servicePaymentDto.getFailedUrl(), HttpStatus.OK);
     }
 
-//    http://localhost:9200/payment-requests/success?token=EC-4S491563R4469123A&ba_token=BA-43Y92145GD2251927
+    private Plan createPlan(ServicePaymentDto servicePaymentDto) {
 
-    private Plan createPlan(ServicePaymentDto servicePaymentDto) throws PayPalRESTException {
-        // Merchant preference
         MerchantPreferences merchantPreferences = new MerchantPreferences();
-        merchantPreferences.setReturnUrl(servicePaymentDto.getSuccessUrl());    //TREBA DA IMA execute putanju, ili success
+        merchantPreferences.setReturnUrl("http://localhost:9200/payment-requests/subsuccess");
         merchantPreferences.setCancelUrl(servicePaymentDto.getFailedUrl());
         merchantPreferences.setAutoBillAmount("YES");
-        merchantPreferences.setSetupFee(new Currency("USD", "1.11"));
+        merchantPreferences.setSetupFee(new Currency("USD", "1.05"));
 
-        // Payment definitions
         PaymentDefinition paymentDefinition = new PaymentDefinition();
         paymentDefinition.setAmount(new Currency("USD", servicePaymentDto.getAmount().toString()));
         paymentDefinition.setType("REGULAR");
@@ -134,67 +130,50 @@ public class PaymentRequestService {
         paymentDefinition.setFrequencyInterval("1");
         paymentDefinition.setCycles("12");
         paymentDefinition.setName("12 payments");
-
         List<PaymentDefinition> paymentDefinitions = new ArrayList<>();
         paymentDefinitions.add(paymentDefinition);
 
-        // Create billing plan
         Plan plan = new Plan();
         plan.setMerchantPreferences(merchantPreferences);
         plan.setPaymentDefinitions(paymentDefinitions);
         plan.setState("ACTIVE");
         plan.setType("fixed");
-//        plan.setType("INFINITE"); v1
         plan.setName(servicePaymentDto.getBillingCycle() + "LY  PLAN");
         plan.setDescription("Subscription plan");
-
-
         try{
-            apiContext = new APIContext(servicePaymentDto.getCredentialsId(),
-                    servicePaymentDto.getCredentialsSecret(),"sandbox");
+            apiContext = new APIContext(servicePaymentDto.getCredentialsId(), servicePaymentDto.getCredentialsSecret(), mode);
             plan = plan.create(apiContext);
         }catch (Exception e){
             e.printStackTrace();
         }
 
-        System.out.println("USPEH");
-
-        // activate plan
         Map<String, String> changes = new HashMap<>();
         changes.put("state", "ACTIVE");
-
         Patch patch = new Patch();
         patch.setValue(changes);
         patch.setOp("replace");
         patch.setPath("/");
-
         List<Patch> patches = new ArrayList<>();
         patches.add(patch);
-
         try{
             plan.update(apiContext, patches);
         }catch (Exception e){
             e.printStackTrace();
         }
-
-        System.out.println("---------------------AKT TI VACIJA");
-        System.out.println(plan.getState());
-
         return plan;
     }
 
     private Agreement createAgreement(ServicePaymentDto servicePaymentDto, String planId) {
 
+        Payer payer = new Payer();
+        payer.setPaymentMethod("paypal");
+        Plan plan = new Plan();
+        plan.setId(planId);
+
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.add(Calendar.MINUTE, 1);
-
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-
-        Payer payer = new Payer();
-        payer.setPaymentMethod("paypal");
-        Plan plan = new Plan(); //!!!!!!!!!!!!!!!!!!!
-        plan.setId(planId);
 
         Agreement agreement = new Agreement();
         agreement.setStartDate(sdf.format(calendar.getTime()));
@@ -205,8 +184,6 @@ public class PaymentRequestService {
 
         try{
             agreement = agreement.create(apiContext);
-            //save
-            //log
             return agreement;
         }catch(Exception e){
             e.printStackTrace();
@@ -214,25 +191,21 @@ public class PaymentRequestService {
         }
     }
 
-    public ResponseEntity<?> executeAgreement(String token, String ba_token) {
+    public String executeAgreement(String token, String ba_token) {
 
+        PayPalSubscription saved = payPalSubscriptionService.getByAgreementToken(token);
         Agreement agreement = new Agreement();
         try{
             agreement =  agreement.execute(apiContext, token);
-
-            return new ResponseEntity<>("<h1>IS IT SUCCESS?? : "+ agreement.getState() +"execute"+ token + ba_token +"</h1>", HttpStatus.OK);
+            if(agreement == null) {
+                return saved.getFailedUrl();
+            }
+            payPalSubscriptionService.updateSubscription(agreement, token);
+            paypalPaymentService.saveSetupPayment(agreement, saved);
+            return saved.getSuccessUrl();
         }catch(Exception e){
             e.printStackTrace();
+            return saved.getErrorUrl();
         }
-
-
-        return new ResponseEntity<>("<h1>NE VALJA </h1>", HttpStatus.BAD_REQUEST);
     }
-
-    private void saveSubscription(Agreement agreement, Plan plan) {
-        System.out.println("Henlo\n\n");
-//        PAYMENT RESPONSE SACUVATI?
-    }
-
-
 }

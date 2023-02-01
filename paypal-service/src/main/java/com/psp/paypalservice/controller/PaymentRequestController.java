@@ -37,8 +37,10 @@ public class PaymentRequestController {
     }
 
     @GetMapping("/subsuccess")
-    public ResponseEntity<?> successSubscription(@RequestParam String token, @RequestParam String ba_token){
-        return paymentRequestService.executeAgreement(token, ba_token);
+    public String successSubscription(@RequestParam String token, @RequestParam String ba_token){
+        String resultingUrl = paymentRequestService.executeAgreement(token, ba_token);
+        Utils.browse(resultingUrl);
+        return resultingUrl;
     }
 
     @GetMapping("/")

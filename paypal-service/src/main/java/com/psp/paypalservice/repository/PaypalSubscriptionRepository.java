@@ -9,4 +9,5 @@ import java.util.UUID;
 @Repository
 public interface PaypalSubscriptionRepository extends JpaRepository<PayPalSubscription, UUID> {
 
+    PayPalSubscription findByAgreementToken(String agreementToken);
 }

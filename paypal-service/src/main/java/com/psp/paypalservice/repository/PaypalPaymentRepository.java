@@ -11,4 +11,6 @@ public interface PaypalPaymentRepository extends JpaRepository<PayPalPayment, UU
 
     PayPalPayment findByPaymentId(String paymentId);
 
+    // Page<PaymentRequest> findByMerchantIdAndActive(String merchantId, boolean active, Pageable pageable);
+
 }

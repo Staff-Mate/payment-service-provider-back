@@ -1,16 +1,21 @@
 package com.psp.paypalservice.service;
 
+import com.paypal.api.payments.Agreement;
 import com.paypal.api.payments.Payment;
 import com.psp.paypalservice.dto.ServicePaymentDto;
 import com.psp.paypalservice.model.PayPalPayment;
+import com.psp.paypalservice.model.PayPalSubscription;
 import com.psp.paypalservice.repository.PaypalPaymentRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 @Service
 @Slf4j
-public class PaypalPaymentService {
+public class PayPalPaymentService {
 
     @Autowired
     private PaypalPaymentRepository paypalPaymentRepository;
@@ -41,4 +46,15 @@ public class PaypalPaymentService {
         return paypalPaymentRepository.save(saved);
     }
 
+    public void saveSetupPayment(Agreement agreement, PayPalSubscription sub) {
+        PayPalPayment payment = new PayPalPayment();
+        payment.setAmount(agreement.getPlan().getMerchantPreferences().getSetupFee().getValue());
+        payment.setState("approved");
+        payment.setMerchantId(sub.getMerchantId());
+        payment.setType("SETUP_FEE");
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        payment.setTimestamp(sdf.format(new Date()));
+        paypalPaymentRepository.save(payment);
+    }
 }

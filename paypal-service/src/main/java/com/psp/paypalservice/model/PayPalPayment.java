@@ -20,7 +20,7 @@ public class PayPalPayment {
     @Column(name="id")
     private Integer id;
 
-    @Column(name="paymentId", unique = true)
+    @Column(name="paymentId")
     private String paymentId;
 
     @Column(name="merchantId")
