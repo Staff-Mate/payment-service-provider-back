@@ -3,3 +3,4 @@ auth-service/env.properties
 bank-card-service/env.properties
 bitcoin-service/env.properties
 qr-code-service/env.properties
+paypal-service/env.properties
