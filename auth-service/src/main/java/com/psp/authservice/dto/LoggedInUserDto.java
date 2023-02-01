@@ -21,5 +21,6 @@ public class LoggedInUserDto {
     private String failedUrl;
     private String successUrl;
     private BankDto bank;
+    private String apiKey;
     private List<String> permissions;
 }
