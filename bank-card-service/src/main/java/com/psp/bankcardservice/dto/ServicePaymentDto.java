@@ -19,6 +19,8 @@ public class ServicePaymentDto {
 
     private Timestamp timestamp;
 
+    private String billingCycle;
+
     private String successUrl;
 
     private String failedUrl;

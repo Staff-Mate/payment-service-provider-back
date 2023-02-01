@@ -7,6 +7,7 @@ import com.psp.authservice.security.exception.ResourceConflictException;
 import com.psp.authservice.security.util.JwtAuthenticationRequest;
 import com.psp.authservice.security.util.UserTokenState;
 import com.psp.authservice.service.AuthenticationService;
+import freemarker.template.TemplateException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +17,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
+import java.io.IOException;
 import java.security.Principal;
 
 @RestController
@@ -42,7 +45,7 @@ public class AuthenticationController {
         log.debug("POST request received - /auth/register. User email: {}", userDto.getEmail());
         try {
             return authenticationService.signUp(userDto);
-        } catch (ResourceConflictException e) {
+        } catch (ResourceConflictException | MessagingException | TemplateException | IOException e) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }

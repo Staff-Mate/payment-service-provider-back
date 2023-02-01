@@ -16,4 +16,7 @@ public class NewPaymentDto {
     private Double amount;
 
     private UUID paymentMethodId;
+
+    private String billingCycle;
+
 }

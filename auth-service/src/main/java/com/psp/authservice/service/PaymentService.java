@@ -28,7 +28,7 @@ public class PaymentService {
         EnabledPaymentMethod enabledPaymentMethod = userService.getPaymentMethodForCompany(user, newPaymentDto.getPaymentMethodId());
         if (enabledPaymentMethod != null) {
             log.debug("Payment process started with {}, for merchant: {}", enabledPaymentMethod.getPaymentMethod().getName(), user.getId());
-            ServicePaymentDto servicePaymentDto = new ServicePaymentDto(enabledPaymentMethod.getUserId(), enabledPaymentMethod.getUserSecret(), newPaymentDto.getAmount());
+            ServicePaymentDto servicePaymentDto = new ServicePaymentDto(enabledPaymentMethod.getUserId(), enabledPaymentMethod.getUserSecret(), newPaymentDto.getAmount(), newPaymentDto.getBillingCycle());
             servicePaymentDto.setTimestamp(new Timestamp(System.currentTimeMillis()));
             servicePaymentDto.setMerchantBankUrl(user.getBank().getBankUrl());
             servicePaymentDto.setErrorUrl(user.getErrorUrl());

@@ -29,9 +29,10 @@ public class ServicePaymentDto {
 
     private String merchantBankUrl;
 
-    public ServicePaymentDto(String credentialsId, String credentialsSecret, Double amount) {
+    public ServicePaymentDto(String credentialsId, String credentialsSecret, Double amount, String billingCycle) {
         this.credentialsId = credentialsId;
         this.credentialsSecret = credentialsSecret;
         this.amount = amount;
+        this.billingCycle = billingCycle;
     }
 }
