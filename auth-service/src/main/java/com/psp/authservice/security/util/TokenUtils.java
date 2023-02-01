@@ -16,25 +16,19 @@ import java.util.List;
 @Component
 public class TokenUtils {
 
-    @Value("PSP")
-    private String APP_NAME;
-
-
+    private static final String AUDIENCE_WEB = "web";
     @Value("somesecret")
     public String SECRET;
-
-
+    @Value("someapisecret")
+    public String API_TOKEN_SECRET;
+    @Value("PSP")
+    private String APP_NAME;
     @Value("1800000")
     private int EXPIRES_IN;
-
-
+    @Value("2592000000")
+    private long API_TOKEN_EXPIRES_IN;
     @Value("Authorization")
     private String AUTH_HEADER;
-
-
-    private static final String AUDIENCE_WEB = "web";
-
-
     private SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS512;
 
 
@@ -57,7 +51,17 @@ public class TokenUtils {
                 .signWith(SIGNATURE_ALGORITHM, SECRET).compact();
 
     }
+    public String generateAPIToken(String username) {
+        Date exp_date = new Date(new Date().getTime() + API_TOKEN_EXPIRES_IN);
+        return Jwts.builder()
+                .setIssuer(APP_NAME)
+                .setSubject(username)
+                .setExpiration(exp_date)
+                .setAudience(generateAudience())
+                .setIssuedAt(new Date())
+                .signWith(SIGNATURE_ALGORITHM, API_TOKEN_SECRET).compact();
 
+    }
     /**
      * Funkcija za utvrđivanje tipa uređaja za koji se JWT kreira.
      *

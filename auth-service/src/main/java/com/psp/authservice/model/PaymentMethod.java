@@ -28,7 +28,13 @@ public class PaymentMethod {
     @Column
     private String serviceName;
 
-    @Column
+    @Column(length = 1024)
     private String description;
+
+    @Column
+    private Boolean requiresCredentialsId;
+
+    @Column
+    private Boolean requiresCredentialsSecret;
 
 }

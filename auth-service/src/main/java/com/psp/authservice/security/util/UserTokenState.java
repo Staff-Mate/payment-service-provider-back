@@ -22,16 +22,16 @@ public class UserTokenState {
         return accessToken;
     }
 
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
     public List<String> getRoles() {
         return roles;
     }
 
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
     }
 
     public Long getExpiresIn() {

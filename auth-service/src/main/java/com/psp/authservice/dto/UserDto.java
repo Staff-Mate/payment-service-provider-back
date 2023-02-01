@@ -17,5 +17,9 @@ public class UserDto {
     private String country;
     private String state;
     private String city;
+    private String errorUrl;
+    private String successUrl;
+    private String failedUrl;
+    private BankDto bank;
 
 }

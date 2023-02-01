@@ -3,13 +3,12 @@ package com.psp.authservice.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -37,6 +36,19 @@ public class RegularUser extends User {
 
     @Column
     private String apiKey;
+
+    @OneToOne
+    @JoinColumn(name = "bank_id")
+    private Bank bank;
+
+    @Column
+    private String successUrl;
+
+    @Column
+    private String failedUrl;
+
+    @Column
+    private String errorUrl;
 
     @OneToMany(targetEntity = EnabledPaymentMethod.class, fetch = FetchType.EAGER)
     private List<EnabledPaymentMethod> enabledPaymentMethods = new ArrayList<>();

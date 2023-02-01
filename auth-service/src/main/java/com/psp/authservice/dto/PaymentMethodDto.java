@@ -16,4 +16,6 @@ public class PaymentMethodDto {
     private String imagePath;
     private String serviceName;
     private String description;
+    private Boolean requiresCredentialsId;
+    private Boolean requiresCredentialsSecret;
 }

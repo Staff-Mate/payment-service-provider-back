@@ -22,13 +22,10 @@ public class PaymentRequest {
     @Column(length = 30)
     private String merchantId;
 
-    @Column(length = 100)
-    private String merchantPassword;
-
     @Column
     private Double amount;
 
-    @Column(length = 10)
+    @Column
     private String merchantOrderId;
 
     @CreationTimestamp
@@ -42,5 +39,8 @@ public class PaymentRequest {
 
     @Column
     private String errorUrl;
+
+    @Column
+    private boolean active;
 
 }

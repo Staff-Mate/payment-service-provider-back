@@ -1,5 +1,6 @@
 package com.psp.authservice;
 
+import com.psp.authservice.util.customHttpGetRequest.CustomHttpRequestFactory;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,6 +14,10 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @SpringBootApplication
 public class AuthServiceApplication {
 
+    public static void main(String[] args) {
+        SpringApplication.run(AuthServiceApplication.class, args);
+    }
+
     @Bean
     public ModelMapper modelMapper() {
         return new ModelMapper();
@@ -20,16 +25,12 @@ public class AuthServiceApplication {
 
     @Bean
     public RestTemplate restTemplate() {
-        return new RestTemplate();
+        return new RestTemplate(new CustomHttpRequestFactory());
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(AuthServiceApplication.class, args);
     }
 
 }

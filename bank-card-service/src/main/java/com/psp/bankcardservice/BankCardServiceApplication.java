@@ -9,6 +9,10 @@ import org.springframework.web.client.RestTemplate;
 @SpringBootApplication
 public class BankCardServiceApplication {
 
+    public static void main(String[] args) {
+        SpringApplication.run(BankCardServiceApplication.class, args);
+    }
+
     @Bean
     public ModelMapper modelMapper() {
         return new ModelMapper();
@@ -17,10 +21,6 @@ public class BankCardServiceApplication {
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(BankCardServiceApplication.class, args);
     }
 
 }

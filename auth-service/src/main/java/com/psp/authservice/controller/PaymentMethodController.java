@@ -5,6 +5,7 @@ import com.psp.authservice.service.PaymentMethodService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -27,18 +28,21 @@ public class PaymentMethodController {
         return paymentMethodService.getAllPaymentMethods();
     }
 
+    @PreAuthorize("hasAuthority('add_payment_method')")
     @PostMapping("/")
     public ResponseEntity<?> addPaymentMethod(@RequestBody PaymentMethodDto paymentMethodDto) {
         log.debug("POST request received - /payment-methods/. Payment method name: {}", paymentMethodDto.getName());
         return paymentMethodService.addPaymentMethod(paymentMethodDto);
     }
 
+    @PreAuthorize("hasAuthority('update_payment_method')")
     @PutMapping("/")
     public ResponseEntity<?> updatePaymentMethod(@RequestBody PaymentMethodDto paymentMethodDto) {
         log.debug("PUT request received - /payment-methods/. Payment method id: {}", paymentMethodDto.getId());
         return paymentMethodService.updatePaymentMethod(paymentMethodDto);
     }
 
+    @PreAuthorize("hasAuthority('remove_payment_method')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePaymentMethod(@PathVariable UUID id) {
         log.debug("DELETE request received - /payment-methods/. Payment method id: {}", id);

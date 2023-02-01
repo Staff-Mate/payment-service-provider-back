@@ -1,5 +1,7 @@
 package com.psp.authservice.controller;
 
+import com.psp.authservice.dto.ErrorDto;
+import com.psp.authservice.dto.PasswordDto;
 import com.psp.authservice.dto.UserDto;
 import com.psp.authservice.security.exception.ResourceConflictException;
 import com.psp.authservice.security.util.JwtAuthenticationRequest;
@@ -10,9 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -26,13 +27,13 @@ public class AuthenticationController {
     private AuthenticationService authenticationService;
 
     @PostMapping("/login")
-    public ResponseEntity<UserTokenState> createAuthenticationToken(
+    public ResponseEntity<?> createAuthenticationToken(
             @RequestBody JwtAuthenticationRequest authenticationRequest) {
         try {
             UserTokenState userTokenState = authenticationService.login(authenticationRequest);
             return ResponseEntity.ok(userTokenState);
         } catch (AuthenticationException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ErrorDto("Authentication unsuccessful. Username or password incorrect.", e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -49,10 +50,23 @@ public class AuthenticationController {
     @GetMapping("/")
     public ResponseEntity<?> getLoggedInUser(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization) {
         try {
-            if(authorization.equals("")){
+            if (authorization.equals("")) {
                 return new ResponseEntity<>(null, HttpStatus.OK);
             }
             return authenticationService.getLoggedInUser(authorization.split("Bearer ")[1]);
+        } catch (ResourceConflictException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PreAuthorize("hasAuthority('change_password')")
+    @PutMapping("/password")
+    public ResponseEntity<?> changePassword(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization, @RequestBody PasswordDto passwordDto) {
+        try {
+            if (authorization.equals("")) {
+                return new ResponseEntity<>(null, HttpStatus.OK);
+            }
+            return authenticationService.changePassword(authorization.split("Bearer ")[1], passwordDto);
         } catch (ResourceConflictException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

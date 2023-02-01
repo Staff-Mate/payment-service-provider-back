@@ -1,12 +1,12 @@
 package com.psp.authservice.service;
 
-import com.psp.authservice.dto.EnabledPaymentMethodDto;
+import com.psp.authservice.dto.*;
 import com.psp.authservice.model.EnabledPaymentMethod;
 import com.psp.authservice.model.PaymentMethod;
 import com.psp.authservice.model.RegularUser;
 import com.psp.authservice.model.User;
-import com.psp.authservice.repository.RegularUserRepository;
-import com.psp.authservice.repository.UserRepository;
+import com.psp.authservice.repository.*;
+import com.psp.authservice.repository.specification.UserSpecification;
 import com.psp.authservice.security.util.TokenUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -21,10 +21,13 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class UserService implements UserDetailsService {
+    @Autowired
+    private BankService bankService;
 
     @Autowired
     private UserRepository userRepository;
@@ -96,39 +99,46 @@ public class UserService implements UserDetailsService {
         PaymentMethod paymentMethod = paymentMethodService.findPaymentMethodById(enabledPaymentMethodDto.getPaymentMethod().getId());
         if (getPaymentMethodForCompany(user, paymentMethod.getId()) == null) {
             enabledPaymentMethod.setPaymentMethod(paymentMethod);
-            enablePaymentMethodForCompany(user, enabledPaymentMethod);
+            List<EnabledPaymentMethod> enabledPaymentMethods = enablePaymentMethodForCompany(user, enabledPaymentMethod);
             log.debug("Payment method with id: {}, enabled for merchant: {}", paymentMethod.getId(), user.getId());
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            return new ResponseEntity<>(enabledPaymentMethods.stream().map(enabledPayment -> modelMapper.map(enabledPayment, EnabledPaymentMethodDto.class)), HttpStatus.CREATED);
         } else {
             log.warn("Payment method with id: {} is already enabled for merchant: {}", paymentMethod.getId(), user.getId());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
-    private void enablePaymentMethodForCompany(RegularUser user, EnabledPaymentMethod enabledPaymentMethod) {
+    private List<EnabledPaymentMethod> enablePaymentMethodForCompany(RegularUser user, EnabledPaymentMethod enabledPaymentMethod) {
         enabledPaymentMethod = enabledPaymentMethodService.save(enabledPaymentMethod);
         List<EnabledPaymentMethod> userEnabledPaymentMethods = user.getEnabledPaymentMethods();
         userEnabledPaymentMethods.add(enabledPaymentMethod);
         user.setEnabledPaymentMethods(userEnabledPaymentMethods);
-        userRepository.save(user);
+        regularUserRepository.save(user);
+        return user.getEnabledPaymentMethods();
     }
 
     public ResponseEntity<?> deleteEnabledPaymentMethod(String userEmail, UUID enabledPaymentMethodId) {
         RegularUser user = (RegularUser) userRepository.findByEmail(userEmail);
         if (isPaymentMethodEnabledForCompany(user, enabledPaymentMethodId)) {
-            deleteEnabledPaymentMethod(enabledPaymentMethodId, user);
+            List<EnabledPaymentMethod> enabledPaymentMethods = deleteEnabledPaymentMethod(enabledPaymentMethodId, user);
             log.debug("Enabled payment method option with id: {}, deleted from merchant: {}", enabledPaymentMethodId, user.getId());
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(enabledPaymentMethods.stream().map(enabledPaymentMethod -> modelMapper.map(enabledPaymentMethod, EnabledPaymentMethodDto.class)), HttpStatus.OK);
         }
         log.debug("Merchant {} cannot delete payment method option with id: {} - no payment option with given id", user.getId(), enabledPaymentMethodId);
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    private void deleteEnabledPaymentMethod(UUID enabledPaymentMethodId, RegularUser user) {
+    private List<EnabledPaymentMethod> deleteEnabledPaymentMethod(UUID enabledPaymentMethodId, RegularUser user) {
         EnabledPaymentMethod enabledPaymentMethod = enabledPaymentMethodService.findById(enabledPaymentMethodId);
-        user.getEnabledPaymentMethods().remove(enabledPaymentMethod);
-        userRepository.save(user);
-        enabledPaymentMethodService.delete(enabledPaymentMethod);
+        for (int i = 0; i < user.getEnabledPaymentMethods().size(); i++) {
+            if (enabledPaymentMethod.getId().equals(user.getEnabledPaymentMethods().get(i).getId())) {
+                user.getEnabledPaymentMethods().remove(user.getEnabledPaymentMethods().get(i));
+                regularUserRepository.save(user);
+                enabledPaymentMethodService.delete(enabledPaymentMethod);
+                return user.getEnabledPaymentMethods();
+            }
+        }
+        return null;
     }
 
     private boolean isPaymentMethodEnabledForCompany(RegularUser user, UUID enabledPaymentMethodId) {
@@ -149,4 +159,39 @@ public class UserService implements UserDetailsService {
         return null;
     }
 
+    public ResponseEntity<?> updateProfile(String userEmail, UserDto userDto) {
+        RegularUser user = (RegularUser) userRepository.findByEmail(userEmail);
+        if(user == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        user.setBank(bankService.getBankById(userDto.getBank().getId()));
+        user.setSuccessUrl(userDto.getSuccessUrl());
+        user.setErrorUrl(userDto.getErrorUrl());
+        user.setFailedUrl(userDto.getFailedUrl());
+        regularUserRepository.save(user);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> getAllUsers() {
+        List<User> users = regularUserRepository.findAllByRole_Name("ROLE_USER");
+        List<RegularUser> regularUsers = users.stream().map(user -> (RegularUser) user).collect(Collectors.toList());
+        return new ResponseEntity<>(mapToRegularUserDto(regularUsers),HttpStatus.OK);
+    }
+
+    private List<RegularUserDto> mapToRegularUserDto(List<RegularUser> regularUsers) {
+        return regularUsers.stream().map(regularUser -> {
+            RegularUserDto regularUserDto = modelMapper.map(regularUser, RegularUserDto.class);
+            List<PaymentMethod> paymentMethods = regularUser.getEnabledPaymentMethods().stream().map(EnabledPaymentMethod::getPaymentMethod).collect(Collectors.toList());
+            List<PaymentMethodDto> paymentMethodDtoList = paymentMethods.stream().map(paymentMethod -> modelMapper.map(paymentMethod,PaymentMethodDto.class)).collect(Collectors.toList());
+            regularUserDto.setPaymentMethods(paymentMethodDtoList);
+            return regularUserDto;
+        }).collect(Collectors.toList());
+    }
+
+    public ResponseEntity<?> getFilteredUsers(UserFilterDto userFilterDto) {
+        List<RegularUser> regularUsers = regularUserRepository.findAll(UserSpecification.getFilteredUsers(userFilterDto));
+        return new ResponseEntity<>(mapToRegularUserDto(regularUsers),HttpStatus.OK);
+    }
 }
