@@ -4,11 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -17,9 +15,9 @@ import java.sql.Timestamp;
 public class PayPalPayment {
 
     @Id
-    @GeneratedValue
-    @Column(name="id")
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", nullable = false)
+    private UUID id;
 
     @Column(name="paymentId")
     private String paymentId;

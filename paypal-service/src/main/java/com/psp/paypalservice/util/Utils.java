@@ -11,10 +11,6 @@ import java.net.URISyntaxException;
 @Component
 public class Utils {
 
-    public static String generateId() {
-        return String.format("%.0f", (Math.floor(Math.random() * 9_000_000_000L) + 1_000_000_000L));
-    }
-
     public static void browse(String url) {
         if(Desktop.isDesktopSupported()){
             Desktop desktop = Desktop.getDesktop();
