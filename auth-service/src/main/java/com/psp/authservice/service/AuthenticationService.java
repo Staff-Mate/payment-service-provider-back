@@ -3,7 +3,6 @@ package com.psp.authservice.service;
 import com.psp.authservice.dto.LoggedInUserDto;
 import com.psp.authservice.dto.PasswordDto;
 import com.psp.authservice.dto.UserDto;
-import com.psp.authservice.model.Bank;
 import com.psp.authservice.model.RegularUser;
 import com.psp.authservice.model.User;
 import com.psp.authservice.security.exception.ResourceConflictException;
@@ -28,6 +27,7 @@ import org.springframework.stereotype.Service;
 import javax.mail.MessagingException;
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -84,6 +84,9 @@ public class AuthenticationService {
             log.warn("Already registered email: {} entered in attempted registration.", user.getEmail());
             throw new ResourceConflictException("Email already exists");
         } else {
+            if (isPasswordInvalid(userDto.getPassword())) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             user.setPassword(passwordEncoder.encode(userDto.getPassword()));
             user.setApiKey(tokenUtils.generateAPIToken(user.getEmail()));
             userService.saveUser(user);
@@ -114,6 +117,9 @@ public class AuthenticationService {
     public ResponseEntity<?> changePassword(String token, PasswordDto passwordDto) {
         User user = this.userService.getUserFromToken(token);
         if(passwordEncoder.matches(passwordDto.getOldPassword(),user.getPassword()) && passwordDto.getNewPassword().equals(passwordDto.getConfirmPassword())){
+            if (isPasswordInvalid(passwordDto.getNewPassword())) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             user.setPassword(passwordEncoder.encode(passwordDto.getNewPassword()));
             userService.saveUser(user);
             log.debug("User with email: {} changed password.", user.getEmail());
@@ -121,5 +127,21 @@ public class AuthenticationService {
         }else{
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    public boolean isPasswordInvalid(String password){
+        if (!Pattern.matches(".*[0-9].*", password)){
+            return true;
+        }
+        if (!Pattern.matches(".*[a-z].*", password)){
+            return true;
+        }
+        if (!Pattern.matches(".*[A-Z].*", password)){
+            return true;
+        }
+        if(!Pattern.matches(".*[!?#$@.*+_].*", password)){
+            return true;
+        }
+        return !Pattern.matches("[0-9A-Za-z!?#$@.*+_]{8,50}", password);
     }
 }
