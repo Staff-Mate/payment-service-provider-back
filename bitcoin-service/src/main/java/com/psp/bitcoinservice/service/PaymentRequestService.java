@@ -4,9 +4,11 @@ package com.psp.bitcoinservice.service;
 import com.psp.bitcoinservice.dto.BtcPaymentResponseDto;
 import com.psp.bitcoinservice.dto.ServicePaymentDto;
 import com.psp.bitcoinservice.model.BtcPaymentResponse;
+import com.psp.bitcoinservice.model.PaymentRequest;
 import com.psp.bitcoinservice.repository.PaymentRequestRepository;
 import com.psp.bitcoinservice.util.Utils;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -26,14 +28,25 @@ public class PaymentRequestService {
     private PaymentRequestRepository paymentRequestRepository;
 
     @Autowired
+    private BtcPaymentResponseService btcPaymentResponseService;
+
+    @Autowired
     private RestTemplate restTemplate;
 
     @Autowired
-    private BtcPaymentResponseService btcPaymentResponseService;
+    private ModelMapper modelMapper;
 
     public ResponseEntity<?> createPaymentRequest(ServicePaymentDto servicePaymentDto) {
         Map<String, Object> createOrderMap = new HashMap<String,Object>();
-        createOrderMap.put("order_id", Utils.generateId());
+        String orderId = Utils.generateId();
+
+        PaymentRequest paymentRequest = modelMapper.map(servicePaymentDto, PaymentRequest.class);
+        paymentRequest.setOrderId(orderId);
+        paymentRequestRepository.save(paymentRequest);
+        log.debug("Payment request with id {} created. Amount: ${}, Order id: {}",
+                paymentRequest.getId(), paymentRequest.getAmount(), orderId);
+
+        createOrderMap.put("order_id", orderId);
         createOrderMap.put("price_amount", servicePaymentDto.getAmount());
         createOrderMap.put("price_currency","USD");
         createOrderMap.put("receive_currency","USD");
