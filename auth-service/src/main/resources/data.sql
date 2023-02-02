@@ -51,13 +51,13 @@ VALUES ('3890539b-06cd-4be1-9ab8-b2e9516b3b5a', 'UniCredit Bank', 'http://localh
 INSERT INTO bank (id, name, bank_url)
 VALUES ('3890539b-06cd-4be1-9ab8-b2e9516b3b51', 'Erste Bank', 'http://localhost:8088');
 
-INSERT INTO administrator
-VALUES ('1fba8a11-f059-4bb3-aa6b-891518865033', 'discash.hr@gmail.com','$2a$10$jb2dCfj9odULiIVcL5Dd8eiOV8fP9KSpzLULf4hPLMuwhoPglnbRa',3);
+INSERT INTO administrator (id, email, password, role_id, activated)
+VALUES ('1fba8a11-f059-4bb3-aa6b-891518865033', 'discash.hr@gmail.com','$2a$10$jb2dCfj9odULiIVcL5Dd8eiOV8fP9KSpzLULf4hPLMuwhoPglnbRa',3, true);
 
 INSERT INTO regular_user (id, email, password, role_id, company_name, first_name, last_name, country, state, city,
-                          api_key, bank_id, success_url, failed_url, error_url)
+                          api_key, bank_id, success_url, failed_url, error_url, activated)
 VALUES ('1fba8a11-f059-4bb3-aa6b-89151886503d', 'nick@gmail.com', '$2a$10$jb2dCfj9odULiIVcL5Dd8eiOV8fP9KSpzLULf4hPLMuwhoPglnbRa', 1, 'StaffMate', 'Nick', 'Jones', 'USA', 'Nevada', 'Reno', '1fba8a11-1159-4bb3-aa6b-89151886503d',
-        '3890539b-06cd-4be1-9ab8-b2e9516b3b5a', 'http://localhost:4200/payment/success', 'http://localhost:4200/payment/failed', 'http://localhost:4200/payment/error');
+        '3890539b-06cd-4be1-9ab8-b2e9516b3b5a', 'http://192.168.43.153:4100/payment/success', 'http://192.168.43.153:4100/payment/failed', 'http://192.168.43.153:4100/payment/error', true);
 
 INSERT INTO payment_method (id, description, image_path, name, service_name, requires_credentials_id,
                            requires_credentials_secret)

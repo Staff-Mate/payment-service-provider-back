@@ -1,5 +1,7 @@
 package com.psp.authservice.service;
 
+import com.psp.authservice.model.ConfirmationToken;
+import com.psp.authservice.model.User;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -22,14 +24,14 @@ public class EmailService {
     private final JavaMailSender javaMailSender;
     private final Configuration configuration;
 
-    public void sendRegistrationEmail(String userEmail) throws MessagingException, IOException, TemplateException {
+    public void sendRegistrationEmail(User user, ConfirmationToken token) throws MessagingException, IOException, TemplateException {
         MimeMessage message = javaMailSender.createMimeMessage();
 
         MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED);
         Template template = configuration.getTemplate("registration-template.ftl");
 
-        String html = FreeMarkerTemplateUtils.processTemplateIntoString(template, null);
-        helper.setTo(userEmail);
+        String html = FreeMarkerTemplateUtils.processTemplateIntoString(template, token);
+        helper.setTo(user.getEmail());
         helper.setText(html, true);
         helper.setSubject("Successful registration");
         javaMailSender.send(message);

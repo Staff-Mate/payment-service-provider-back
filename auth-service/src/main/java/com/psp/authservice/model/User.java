@@ -29,6 +29,9 @@ public abstract class User implements UserDetails {
     @ManyToOne(targetEntity = Role.class, cascade = CascadeType.MERGE)
     private Role role;
 
+    @Column
+    private Boolean activated;
+
     public User() {
     }
 
@@ -96,5 +99,13 @@ public abstract class User implements UserDetails {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public Boolean getActivated() {
+        return activated;
+    }
+
+    public void setActivated(Boolean activated) {
+        this.activated = activated;
     }
 }

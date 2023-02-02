@@ -50,6 +50,11 @@ public class AuthenticationController {
         }
     }
 
+    @GetMapping("/confirm-account")
+    public ResponseEntity<Boolean> confirmAccount(@RequestParam(name = "token") String token) {
+        return new ResponseEntity<>(authenticationService.confirmAccount(token), HttpStatus.OK);
+    }
+
     @GetMapping("/")
     public ResponseEntity<?> getLoggedInUser(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization) {
         try {

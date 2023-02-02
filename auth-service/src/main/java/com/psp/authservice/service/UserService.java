@@ -194,4 +194,8 @@ public class UserService implements UserDetailsService {
         List<RegularUser> regularUsers = regularUserRepository.findAll(UserSpecification.getFilteredUsers(userFilterDto));
         return new ResponseEntity<>(mapToRegularUserDto(regularUsers),HttpStatus.OK);
     }
+
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
 }

@@ -156,7 +156,7 @@
                                                     <div class = "txtTinyMce-wrapper"
                                                          style = "font-size: 14px; mso-line-height-alt: 25.2px; color: #737487; line-height: 1.8; font-family: Arial, Helvetica Neue, Helvetica, sans-serif;">
                                                         <p style = "margin: 0; font-size: 14px; text-align: center; mso-line-height-alt: 32.4px;">
-                                                            <span style = "font-size:18px;">We are happy to see you here. Your account is active, so you can explore and make services active for your shop.</span>
+                                                            <span style = "font-size:18px;">We are happy to see you here. Please confirm your account so you can access it.</span>
                                                         </p>
                                                     </div>
                                                 </div>
@@ -231,6 +231,39 @@
                                                         <p style = "margin: 0; font-size: 14px; text-align: center; mso-line-height-alt: 32.4px;">
                                                             <span style = "font-size:18px;">Follow us</span></p>
                                                     </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table class = "button_block block-3"
+                                           width = "100%"
+                                           border = "0"
+                                           cellpadding = "0"
+                                           cellspacing = "0"
+                                           role = "presentation"
+                                           style = "mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                                        <tr>
+                                            <td class = "pad"
+                                                style = "padding-bottom:30px;padding-left:15px;padding-right:15px;padding-top:20px;text-align:center;">
+                                                <div class = "alignment"
+                                                     align = "center">
+                                                    <!--[if mso]>
+                                                    <v:roundrect xmlns:v = "urn:schemas-microsoft-com:vml"
+                                                                 xmlns:w = "urn:schemas-microsoft-com:office:word"
+                                                                 href = "https://localhost:4200/confim-account"
+                                                                 style = "height:52px;width:238px;v-text-anchor:middle;"
+                                                                 arcsize = "8%"
+                                                                 stroke = "false"
+                                                                 fillcolor = "#ffd740">
+                                                        <w:anchorlock/>
+                                                        <v:textbox inset = "0px,0px,0px,0px">
+                                                            <center style = "color:#002220; font-family:Arial, sans-serif; font-size:16px">
+                                                    <![endif]-->
+                                                    <a href = "http://localhost:4200/confirm-account/${token}"
+                                                       target = "_blank"
+                                                       style = "text-decoration:none;display:inline-block;color:#002220;background-color:#ffd740;border-radius:4px;width:auto;border-top:1px solid #ffd740;font-weight:400;border-right:1px solid #ffd740;border-bottom:1px solid #ffd740;border-left:1px solid #ffd740;padding-top:10px;padding-bottom:10px;font-family:Arial, Helvetica Neue, Helvetica, sans-serif;text-align:center;mso-border-alt:none;word-break:keep-all;"><span style = "padding-left:60px;padding-right:60px;font-size:16px;display:inline-block;letter-spacing:normal;"><span dir = "ltr"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        style = "word-break: break-word; line-height: 32px;">Activate Account</span></span></a>
+                                                    <!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
                                                 </div>
                                             </td>
                                         </tr>

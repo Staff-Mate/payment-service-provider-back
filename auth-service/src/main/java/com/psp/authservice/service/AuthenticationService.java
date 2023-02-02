@@ -3,6 +3,7 @@ package com.psp.authservice.service;
 import com.psp.authservice.dto.LoggedInUserDto;
 import com.psp.authservice.dto.PasswordDto;
 import com.psp.authservice.dto.UserDto;
+import com.psp.authservice.model.ConfirmationToken;
 import com.psp.authservice.model.RegularUser;
 import com.psp.authservice.model.User;
 import com.psp.authservice.security.exception.ResourceConflictException;
@@ -59,11 +60,17 @@ public class AuthenticationService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private ConfirmationTokenService confirmationTokenService;
+
     public UserTokenState login(JwtAuthenticationRequest authenticationRequest) throws AuthenticationException {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 authenticationRequest.getEmail(), authenticationRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         User user = (User) authentication.getPrincipal();
+        if (!user.getActivated()) {
+            return null;
+        }
         return getAuthentication(user);
     }
 
@@ -77,6 +84,19 @@ public class AuthenticationService {
                 .collect(Collectors.toList());
     }
 
+    public boolean confirmAccount(String token) {
+        ConfirmationToken confirmationToken = confirmationTokenService.findByToken(token);
+        if (confirmationToken != null ) {
+            User user = userService.getUserByEmail(confirmationToken.getEmail());
+            if(user == null)
+                return false;
+            user.setActivated(true);
+            userService.saveUser(user);
+            confirmationTokenService.deleteToken(confirmationToken);
+            return true;
+        }
+        return false;
+    }
     public ResponseEntity<?> signUp(UserDto userDto) throws ResourceConflictException, MessagingException, TemplateException, IOException {
         RegularUser user = modelMapper.map(userDto, RegularUser.class);
         user.setBank(bankService.getBankById(userDto.getBank().getId()));
@@ -90,9 +110,10 @@ public class AuthenticationService {
             }
             user.setPassword(passwordEncoder.encode(userDto.getPassword()));
             user.setApiKey(tokenUtils.generateAPIToken(user.getEmail()));
+            user.setActivated(false);
             userService.saveUser(user);
             try{
-                emailService.sendRegistrationEmail(user.getEmail());
+                sendRegistrationEmail(user);
             }catch (Exception e){
                 log.debug("Email not send.");
             }
@@ -100,7 +121,11 @@ public class AuthenticationService {
             return new ResponseEntity<>(modelMapper.map(user, UserDto.class), HttpStatus.CREATED);
         }
     }
-
+    private void sendRegistrationEmail(User user) throws MessagingException, TemplateException, IOException {
+        ConfirmationToken token = confirmationTokenService.generateConfirmationToken(user.getEmail());
+        emailService.sendRegistrationEmail(user, token);
+        confirmationTokenService.encodeToken(token);
+    }
     public ResponseEntity<?> getLoggedInUser(String token) {
         User user = this.userService.getUserFromToken(token);
         LoggedInUserDto dto = new LoggedInUserDto();
