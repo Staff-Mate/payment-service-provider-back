@@ -37,13 +37,16 @@ public class PaymentRequestService {
     @Value("${paypal.mode}")
     private String mode;
 
+    @Value("${service.host}")
+    private String host;
+
     public ResponseEntity<?> createPayment(ServicePaymentDto servicePaymentDto) {
 
         Payer payer = new Payer();
         payer.setPaymentMethod("paypal");
         RedirectUrls urls = new RedirectUrls();
         urls.setCancelUrl(servicePaymentDto.getFailedUrl());
-        urls.setReturnUrl("http://localhost:9200/payment-requests/success");
+        urls.setReturnUrl("http://" + host + ":9200/payment-requests/success");
 
         Amount amount = new Amount();
         amount.setCurrency("USD");

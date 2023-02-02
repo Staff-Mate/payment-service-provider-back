@@ -25,7 +25,7 @@ public class PaymentAttemptService {
     }
 
     public ResponseEntity<?> savePaymentAttempt(PaymentAttemptDto paymentAttemptDto) {
-        return new ResponseEntity<>("http://localhost:4200/payment/" + save(paymentAttemptDto).getId(), HttpStatus.OK);
+        return new ResponseEntity<>("http://192.168.43.124:4200/payment/" + save(paymentAttemptDto).getId(), HttpStatus.OK);
     }
 
     public PaymentAttempt getPaymentAttempt(UUID paymentAttemptId) {
